@@ -1,0 +1,8 @@
+# PHPSTORM ENVIRONMENT
+.idea/*
+
+# COMPOSER VENDORS
+vendor/*
+
+# PHPUNIT
+.phpunit.result.cache

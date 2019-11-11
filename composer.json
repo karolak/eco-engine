@@ -1,0 +1,26 @@
+{
+  "name": "karolak/eco-engine",
+  "description": "ECO Engine - E-Commerce Engine",
+  "authors": [
+    {
+      "name": "Krzysztof Karolak",
+      "homepage": "https://karolak.it"
+    }
+  ],
+  "require": {
+    "php": "^7.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Karolak\\EcoEngine\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Karolak\\EcoEngine\\Test\\": "tests/"
+    }
+  }
+}
