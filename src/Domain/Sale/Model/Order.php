@@ -1,7 +1,7 @@
 <?php
 namespace Karolak\EcoEngine\Domain\Sale\Model;
 
-use Karolak\EcoEngine\Domain\Sale\Collection\OrderItemsCollection;
+use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
 
 /**
  * Class Order.
@@ -9,7 +9,7 @@ use Karolak\EcoEngine\Domain\Sale\Collection\OrderItemsCollection;
  */
 class Order
 {
-    /** @var OrderItemsCollection */
+    /** @var ItemsCollection|Item[] */
     private $items;
 
     /**
@@ -17,41 +17,82 @@ class Order
      */
     public function __construct()
     {
-        $this->items = new OrderItemsCollection();
+        $this->items = new ItemsCollection();
     }
 
     /**
-     * @return OrderItemsCollection
+     * @return ItemsCollection
      */
-    public function getItems(): OrderItemsCollection
+    public function getItems(): ItemsCollection
     {
         return $this->items;
     }
 
     /**
-     * @param OrderItem $orderItem
+     * @param string $productId
+     * @return Item|null
      */
-    public function addItem(OrderItem $orderItem): void
+    public function getItem(string $productId): ?Item
     {
-        $this->items->add($orderItem);
+        $key = $this->getItemKey($productId);
+        if ($key === null) {
+            return null;
+        }
+
+        return $this->items->get($key);
     }
 
     /**
-     * @param OrderItem $orderItem
-     * @return bool
+     * @param string $productId
+     * @param int $quantity
      */
-    public function hasItem(OrderItem $orderItem): bool
+    public function addProduct(string $productId, int $quantity = 1)
     {
-        return $this->items->has($orderItem);
+        $item = $this->getItem($productId);
+        if (!empty($item)) {
+            $item->addQuantity($quantity);
+            $this->items->set($this->getItemKey($productId), $item);
+            return;
+        }
+
+        $this->items->add(new Item($productId, $quantity));
     }
 
     /**
-     * @param OrderItem $orderItem
+     * @param string $productId
      * @return bool
      */
-    public function removeItem(OrderItem $orderItem): bool
+    public function hasProduct(string $productId): bool
     {
-        return $this->items->remove($orderItem);
+        return $this->getItemKey($productId) !== null;
+    }
+
+    /**
+     * @param string $productId
+     */
+    public function removeProduct(string $productId)
+    {
+        $key = $this->getItemKey($productId);
+        if ($key === null) {
+            return;
+        }
+
+        $this->items->remove($key);
+    }
+
+    /**
+     * @param string $productId
+     * @param int $quantity
+     */
+    public function changeProductQuantity(string $productId, int $quantity)
+    {
+        $item = $this->getItem($productId);
+        if (empty($item)) {
+            return;
+        }
+
+        $item->setQuantity($quantity);
+        $this->items->set($this->getItemKey($productId), $item);
     }
 
     /**
@@ -60,5 +101,26 @@ class Order
     public function isEmpty(): bool
     {
         return $this->items->isEmpty();
+    }
+
+    /**
+     * @param string $productId
+     * @return int|null
+     */
+    private function getItemKey(string $productId): ?int
+    {
+        if ($this->items->isEmpty()) {
+            return null;
+        }
+
+        $result = null;
+        foreach ($this->items as $key => $item) {
+            if ($item->getProductId() === $productId) {
+                $result = $key;
+                break;
+            }
+        }
+
+        return $result;
     }
 }
