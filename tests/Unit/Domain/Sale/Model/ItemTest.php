@@ -2,6 +2,7 @@
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Model;
 
 use Karolak\EcoEngine\Domain\Sale\Model\Item;
+use Karolak\EcoEngine\Domain\Sale\Model\Product;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,7 +20,7 @@ class ItemTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->obj = new Item('1');
+        $this->obj = new Item(new Product('1'));
     }
 
     /**
@@ -43,7 +44,7 @@ class ItemTest extends TestCase
     /**
      * @test
      */
-    public function Should_ReturnQuantity()
+    public function Should_ReturnDefaultQuantity()
     {
         // Assert
         $this->assertEquals(1, $this->obj->getQuantity());

@@ -4,6 +4,7 @@ namespace Karolak\EcoEngine\Test\Unit\Infrastructure\Sale\Collection;
 use Karolak\EcoEngine\Domain\Common\Collection\Collection;
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
 use Karolak\EcoEngine\Domain\Sale\Model\Item;
+use Karolak\EcoEngine\Domain\Sale\Model\Product;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -42,7 +43,7 @@ class ItemsArrayCollectionTest extends TestCase
         $productId = '1';
 
         // Act
-        $this->obj->add(new Item($productId));
+        $this->obj->add(new Item(new Product($productId)));
 
         // Assert
         $this->assertFalse($this->obj->isEmpty());
@@ -54,7 +55,7 @@ class ItemsArrayCollectionTest extends TestCase
     public function Should_RemoveItem()
     {
         // Arrange
-        $this->obj->add(new Item('1'));
+        $this->obj->add(new Item(new Product('1')));
 
         // Act
         $this->obj->remove(0);
@@ -81,7 +82,7 @@ class ItemsArrayCollectionTest extends TestCase
     public function Should_ReturnItem_When_FoundByKey()
     {
         // Arrange
-        $item = new Item('1');
+        $item = new Item(new Product('1'));
         $this->obj->add($item);
 
         // Act
@@ -110,7 +111,7 @@ class ItemsArrayCollectionTest extends TestCase
     public function Should_NotReturnItem_When_NotFoundInNotEmptyCollection()
     {
         // Arrange
-        $this->obj->add(new Item('1'));
+        $this->obj->add(new Item(new Product('1')));
 
         // Act
         $result = $this->obj->get(3);
@@ -123,11 +124,11 @@ class ItemsArrayCollectionTest extends TestCase
     /**
      * @test
      */
-    public function Should_SetItem_WhenEmptyCollection()
+    public function Should_SetItem_When_EmptyCollection()
     {
         // Arrange
         $index = 3;
-        $item = new Item('1');
+        $item = new Item(new Product('1'));
 
         // Act
         $this->obj->set($index, $item);
@@ -141,12 +142,12 @@ class ItemsArrayCollectionTest extends TestCase
     /**
      * @test
      */
-    public function Should_OverrideItem()
+    public function Should_ReplaceItem()
     {
         // Arrange
         $index = 3;
-        $item = new Item('1');
-        $this->obj->set($index, new Item('2'));
+        $item = new Item(new Product('1'));
+        $this->obj->set($index, new Item(new Product('2')));
 
         // Act
         $this->obj->set($index, $item);

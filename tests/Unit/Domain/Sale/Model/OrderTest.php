@@ -2,7 +2,9 @@
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Model;
 
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
+use Karolak\EcoEngine\Domain\Sale\Model\Item;
 use Karolak\EcoEngine\Domain\Sale\Model\Order;
+use Karolak\EcoEngine\Domain\Sale\Model\Product;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -42,7 +44,7 @@ class OrderTest extends TestCase
         $isEmpty = $this->obj->isEmpty();
 
         // Act
-        $this->obj->addProduct($productId);
+        $this->obj->addItem($this->createDefaultItem($productId));
 
         // Assert
         $this->assertTrue($isEmpty);
@@ -57,11 +59,11 @@ class OrderTest extends TestCase
     {
         // Arrange
         $productId = '2';
-        $this->obj->addProduct('1');
+        $this->obj->addItem($this->createDefaultItem('1'));
         $isEmpty = $this->obj->isEmpty();
 
         // Act
-        $this->obj->addProduct($productId);
+        $this->obj->addItem($this->createDefaultItem($productId));
 
         // Assert
         $this->assertFalse($isEmpty);
@@ -72,28 +74,11 @@ class OrderTest extends TestCase
     /**
      * @test
      */
-    public function Should_AddQuantity_When_AddItemAlreadyInOrder()
-    {
-        // Arrange
-        $productId = '1';
-        $this->obj->addProduct($productId);
-
-        // Act
-        $this->obj->addProduct($productId);
-
-        // Assert
-        $item = $this->obj->getItem($productId);
-        $this->assertEquals(2, $item->getQuantity());
-    }
-
-    /**
-     * @test
-     */
     public function Should_RemoveItem_When_IsTheOnlyItemInOrder()
     {
         // Arrange
         $productId = '1';
-        $this->obj->addProduct($productId);
+        $this->obj->addItem($this->createDefaultItem($productId));
 
         // Act
         $this->obj->removeProduct($productId);
@@ -111,8 +96,8 @@ class OrderTest extends TestCase
         // Arrange
         $productIdToRemove = '1';
         $productIdNotToRemove = '2';
-        $this->obj->addProduct($productIdToRemove);
-        $this->obj->addProduct($productIdNotToRemove);
+        $this->obj->addItem($this->createDefaultItem($productIdToRemove));
+        $this->obj->addItem($this->createDefaultItem($productIdNotToRemove));
 
         // Act
         $this->obj->removeProduct($productIdToRemove);
@@ -140,10 +125,10 @@ class OrderTest extends TestCase
     /**
      * @test
      */
-    public function Should_ReturnItems_When_NotEmptyOrder()
+    public function Should_ReturnItemsCollection_When_NotEmptyOrder()
     {
         // Arrange
-        $this->obj->addProduct('1');
+        $this->obj->addItem($this->createDefaultItem('1'));
 
         // Act
         $result = $this->obj->getItems();
@@ -156,7 +141,7 @@ class OrderTest extends TestCase
     /**
      * @test
      */
-    public function Should_ReturnItems_When_OrderIsEmpty()
+    public function Should_ReturnEmptyItemsCollection_When_OrderIsEmpty()
     {
         // Act
         $result = $this->obj->getItems();
@@ -168,38 +153,11 @@ class OrderTest extends TestCase
     }
 
     /**
-     * @test
+     * @param string $productId
+     * @return Item
      */
-    public function Should_ChangeProductQuantity()
+    private function createDefaultItem(string $productId)
     {
-        // Arrange
-        $productId = '1';
-        $newQuantity = 3;
-        $this->obj->addProduct($productId);
-
-        // Act
-        $this->obj->changeProductQuantity($productId, $newQuantity);
-
-        // Assert
-        $item = $this->obj->getItem($productId);
-        $this->assertEquals($newQuantity, $item->getQuantity());
-    }
-
-    /**
-     * @test
-     */
-    public function Should_DoNothing_When_ChangeQuantityOfNotExistentProduct()
-    {
-        // Arrange
-        $productId = '12345';
-        $newQuantity = 3;
-        $hasProduct = $this->obj->hasProduct($productId);
-
-        // Act
-        $this->obj->changeProductQuantity($productId, $newQuantity);
-
-        // Assert
-        $this->assertFalse($hasProduct);
-        $this->assertFalse($this->obj->hasProduct($productId));
+        return new Item(new Product($productId));
     }
 }

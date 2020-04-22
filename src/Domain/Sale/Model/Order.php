@@ -29,33 +29,11 @@ class Order
     }
 
     /**
-     * @param string $productId
-     * @return Item|null
+     * @param Item $item
      */
-    public function getItem(string $productId): ?Item
+    public function addItem(Item $item)
     {
-        $key = $this->getItemKey($productId);
-        if ($key === null) {
-            return null;
-        }
-
-        return $this->items->get($key);
-    }
-
-    /**
-     * @param string $productId
-     * @param int $quantity
-     */
-    public function addProduct(string $productId, int $quantity = 1)
-    {
-        $item = $this->getItem($productId);
-        if (!empty($item)) {
-            $item->addQuantity($quantity);
-            $this->items->set($this->getItemKey($productId), $item);
-            return;
-        }
-
-        $this->items->add(new Item($productId, $quantity));
+        $this->items->add($item);
     }
 
     /**
@@ -78,21 +56,6 @@ class Order
         }
 
         $this->items->remove($key);
-    }
-
-    /**
-     * @param string $productId
-     * @param int $quantity
-     */
-    public function changeProductQuantity(string $productId, int $quantity)
-    {
-        $item = $this->getItem($productId);
-        if (empty($item)) {
-            return;
-        }
-
-        $item->setQuantity($quantity);
-        $this->items->set($this->getItemKey($productId), $item);
     }
 
     /**

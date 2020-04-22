@@ -7,20 +7,20 @@ namespace Karolak\EcoEngine\Domain\Sale\Model;
  */
 class Item
 {
-    /** @var string  */
-    private $productId;
+    /** @var Product */
+    private $product;
 
-    /** @var int  */
+    /** @var int */
     private $quantity;
 
     /**
      * Item constructor.
-     * @param string $productId
+     * @param Product $product
      * @param int $quantity
      */
-    public function __construct(string $productId, int $quantity = 1)
+    public function __construct(Product $product, int $quantity = 1)
     {
-        $this->productId = $productId;
+        $this->product = $product;
         $this->quantity = $quantity;
     }
 
@@ -29,7 +29,7 @@ class Item
      */
     public function getProductId(): string
     {
-        return $this->productId;
+        return $this->product->getId();
     }
 
     /**
