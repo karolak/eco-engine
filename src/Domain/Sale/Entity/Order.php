@@ -2,6 +2,7 @@
 namespace Karolak\EcoEngine\Domain\Sale\Entity;
 
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
+use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 
@@ -25,9 +26,14 @@ class Order
     /**
      * @param Product $product
      * @param int $quantity
+     * @throws InvalidItemQuantityException
      */
     public function addProduct(Product $product, int $quantity = 1)
     {
+        if ($quantity <= 0) {
+            throw new InvalidItemQuantityException();
+        }
+
         $key = $this->findItemKeyForProduct($product);
         if ($key !== null) {
             $this->addQuantityToItem($key, $quantity);

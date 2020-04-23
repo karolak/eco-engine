@@ -2,6 +2,7 @@
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Entity;
 
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
+use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use PHPUnit\Framework\TestCase;
 
@@ -77,6 +78,21 @@ class OrderTest extends TestCase
         $this->assertFalse($isEmptyNow);
         $this->assertEquals(0, $totalQuantityBefore);
         $this->assertEquals(4, $totalQuantityAfter);
+    }
+
+    /**
+     * @test
+     */
+    public function Should_TrowException_When_AddProductWithInvalidQuantity()
+    {
+        // Assert
+        $this->expectException(InvalidItemQuantityException::class);
+
+        // Arrange
+        $product = new Product("1");
+
+        // Act
+        $this->obj->addProduct($product, 0);
     }
 
     /**
