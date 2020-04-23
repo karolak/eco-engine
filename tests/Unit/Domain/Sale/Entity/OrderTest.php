@@ -3,6 +3,7 @@ namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Entity;
 
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
+use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use PHPUnit\Framework\TestCase;
 
@@ -35,6 +36,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidItemQuantityException
      */
     public function Should_AddOneProduct()
     {
@@ -59,6 +61,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidItemQuantityException
      */
     public function Should_AddProductWithQuantity()
     {
@@ -97,6 +100,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidItemQuantityException
      */
     public function Should_AddSameProductTwice()
     {
@@ -121,6 +125,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidItemQuantityException
      */
     public function Should_AddSameProductTwice_When_AddWithDifferentQuantity()
     {
@@ -159,6 +164,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidItemQuantityException
      */
     public function Should_ReturnOneItem_When_AddOneProduct()
     {
@@ -175,6 +181,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidItemQuantityException
      */
     public function Should_ReturnTwoItems_When_AddTwoDifferentProducts()
     {
@@ -193,6 +200,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidItemQuantityException
      */
     public function Should_ReturnOneItem_When_AddSameProductTwice()
     {
@@ -206,5 +214,59 @@ class OrderTest extends TestCase
 
         // Assert
         $this->assertCount(1, $items);
+    }
+
+    /**
+     * @test
+     * @throws InvalidItemQuantityException
+     */
+    public function Should_ChangeProductQuantity()
+    {
+        // Arrange
+        $product1 = new Product("1");
+        $product2 = new Product("2");
+        $this->obj->addProduct($product1, 1);
+        $this->obj->addProduct($product2, 1);
+
+        // Act
+        $this->obj->changeProductQuantity($product2, 3);
+
+        // Assert
+        $this->assertEquals(4, $this->obj->getTotalProductsQuantity());
+    }
+
+    /**
+     * @test
+     * @throws InvalidItemQuantityException
+     */
+    public function Should_ThrowException_When_ChangeProductQuantityToInvalid()
+    {
+        // Assert
+        $this->expectException(InvalidItemQuantityException::class);
+
+        // Arrange
+        $product = new Product("1");
+        $this->obj->addProduct($product, 1);
+
+        // Act
+        $this->obj->changeProductQuantity($product, 0);
+    }
+
+    /**
+     * @test
+     * @throws InvalidItemQuantityException
+     */
+    public function Should_ThrowException_When_ChangeMissingProductQuantity()
+    {
+        // Assert
+        $this->expectException(ProductNotFoundException::class);
+
+        // Arrange
+        $product = new Product("1");
+        $missingProduct = new Product("2");
+        $this->obj->addProduct($product, 1);
+
+        // Act
+        $this->obj->changeProductQuantity($missingProduct, 3);
     }
 }

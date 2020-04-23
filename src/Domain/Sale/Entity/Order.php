@@ -3,6 +3,7 @@ namespace Karolak\EcoEngine\Domain\Sale\Entity;
 
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
+use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 
@@ -42,6 +43,26 @@ class Order
         }
 
         $this->items->add(new Item($product, $quantity));
+    }
+
+    /**
+     * @param Product $product
+     * @param int $quantity
+     * @throws InvalidItemQuantityException
+     * @throws ProductNotFoundException
+     */
+    public function changeProductQuantity(Product $product, int $quantity = 1)
+    {
+        if ($quantity <= 0) {
+            throw new InvalidItemQuantityException();
+        }
+
+        $key = $this->findItemKeyForProduct($product);
+        if ($key === null) {
+            throw new ProductNotFoundException();
+        }
+
+        $this->setItemQuantity($key, $quantity);
     }
 
     /**
@@ -110,6 +131,19 @@ class Order
         $this->items->set(
             $key,
             new Item($item->getProduct(), $item->getQuantity() + $quantity)
+        );
+    }
+
+    /**
+     * @param int $key
+     * @param int $quantity
+     */
+    private function setItemQuantity(int $key, int $quantity)
+    {
+        $item = $this->items->get($key);
+        $this->items->set(
+            $key,
+            new Item($item->getProduct(), $quantity)
         );
     }
 }
