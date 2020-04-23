@@ -2,7 +2,7 @@
 namespace Karolak\EcoEngine\Domain\Sale\Collection;
 
 use Karolak\EcoEngine\Domain\Common\Collection\Collection;
-use Karolak\EcoEngine\Domain\Sale\Model\Item;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
 
 /**
  * Class ItemsCollection.

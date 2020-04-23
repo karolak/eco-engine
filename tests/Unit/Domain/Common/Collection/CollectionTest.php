@@ -85,6 +85,15 @@ class CollectionTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function Should_ReturnArray()
+    {
+        // Assert
+        $this->assertIsArray($this->getCollectionObject()->toArray());
+    }
+
+    /**
      * @return array
      */
     public function itemsDataProvider()
@@ -101,7 +110,7 @@ class CollectionTest extends TestCase
      * @param array $items
      * @return Collection
      */
-    private function getCollectionObject($items = [])
+    private function getCollectionObject(array $items = [])
     {
         return new class($items) extends Collection {
             public function __construct($items)

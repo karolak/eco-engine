@@ -1,9 +1,9 @@
 <?php
-namespace Karolak\EcoEngine\Domain\Sale\Model;
+namespace Karolak\EcoEngine\Domain\Sale\ValueObject;
 
 /**
  * Class Product
- * @package Karolak\EcoEngine\Domain\Sale\Model
+ * @package Karolak\EcoEngine\Domain\Sale\ValueObject
  */
 class Product
 {
@@ -38,5 +38,15 @@ class Product
     public function getPrice(): float
     {
         return $this->price;
+    }
+
+    /**
+     * @param Product $product
+     * @return bool
+     */
+    public function equals(Product $product): bool
+    {
+        return $this->id == $product->getId()
+            && $this->price == $product->getPrice();
     }
 }

@@ -1,9 +1,9 @@
 <?php
-namespace Karolak\EcoEngine\Domain\Sale\Model;
+namespace Karolak\EcoEngine\Domain\Sale\ValueObject;
 
 /**
- * Class Item.
- * @package Karolak\EcoEngine\Domain\Sale\Model
+ * Class Item
+ * @package Karolak\EcoEngine\Domain\Sale\ValueObject
  */
 class Item
 {
@@ -25,11 +25,11 @@ class Item
     }
 
     /**
-     * @return string
+     * @return Product
      */
-    public function getProductId(): string
+    public function getProduct(): Product
     {
-        return $this->product->getId();
+        return $this->product;
     }
 
     /**
@@ -38,21 +38,5 @@ class Item
     public function getQuantity(): int
     {
         return $this->quantity;
-    }
-
-    /**
-     * @param int $quantity
-     */
-    public function addQuantity(int $quantity)
-    {
-        $this->quantity += $quantity;
-    }
-
-    /**
-     * @param int $quantity
-     */
-    public function setQuantity(int $quantity)
-    {
-        $this->quantity = $quantity;
     }
 }

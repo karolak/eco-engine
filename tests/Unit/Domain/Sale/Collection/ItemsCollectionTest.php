@@ -3,8 +3,8 @@ namespace Karolak\EcoEngine\Test\Unit\Infrastructure\Sale\Collection;
 
 use Karolak\EcoEngine\Domain\Common\Collection\Collection;
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
-use Karolak\EcoEngine\Domain\Sale\Model\Item;
-use Karolak\EcoEngine\Domain\Sale\Model\Product;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use PHPUnit\Framework\TestCase;
 
 /**
