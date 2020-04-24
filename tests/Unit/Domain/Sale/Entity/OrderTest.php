@@ -219,6 +219,7 @@ class OrderTest extends TestCase
     /**
      * @test
      * @throws InvalidItemQuantityException
+     * @throws ProductNotFoundException
      */
     public function Should_ChangeProductQuantity()
     {
@@ -238,6 +239,7 @@ class OrderTest extends TestCase
     /**
      * @test
      * @throws InvalidItemQuantityException
+     * @throws ProductNotFoundException
      */
     public function Should_ThrowException_When_ChangeProductQuantityToInvalid()
     {
@@ -268,5 +270,43 @@ class OrderTest extends TestCase
 
         // Act
         $this->obj->changeProductQuantity($missingProduct, 3);
+    }
+
+    /**
+     * @test
+     * @throws InvalidItemQuantityException
+     * @throws ProductNotFoundException
+     */
+    public function Should_RemoveProduct()
+    {
+        // Arrange
+        $product1 = new Product("1");
+        $product2 = new Product("2");
+        $this->obj->addProduct($product1, 1);
+        $this->obj->addProduct($product2, 1);
+
+        // Act
+        $this->obj->removeProduct($product1);
+
+        // Assert
+        $this->assertEquals(1, $this->obj->getTotalProductsQuantity());
+    }
+
+    /**
+     * @test
+     * @throws InvalidItemQuantityException
+     */
+    public function Should_ThrowException_When_RemoveMissingProduct()
+    {
+        // Assert
+        $this->expectException(ProductNotFoundException::class);
+
+        // Arrange
+        $product = new Product("1");
+        $missingProduct = new Product("2");
+        $this->obj->addProduct($product, 1);
+
+        // Act
+        $this->obj->removeProduct($missingProduct);
     }
 }

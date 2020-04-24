@@ -47,6 +47,20 @@ class Order
 
     /**
      * @param Product $product
+     * @throws ProductNotFoundException
+     */
+    public function removeProduct(Product $product)
+    {
+        $key = $this->findItemKeyForProduct($product);
+        if ($key === null) {
+            throw new ProductNotFoundException();
+        }
+
+        $this->items->remove($key);
+    }
+
+    /**
+     * @param Product $product
      * @param int $quantity
      * @throws InvalidItemQuantityException
      * @throws ProductNotFoundException
