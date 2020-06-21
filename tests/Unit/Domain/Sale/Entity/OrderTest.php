@@ -8,6 +8,7 @@ use Karolak\EcoEngine\Domain\Common\ValueObject\GeoPoint;
 use Karolak\EcoEngine\Domain\Common\ValueObject\HomeAddress;
 use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
+use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
@@ -45,13 +46,14 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_AddOneProduct()
     {
         // Arrange
         $wasEmptyBefore = $this->obj->isEmpty();
         $totalQuantityBefore = $this->obj->getTotalProductsQuantity();
-        $product = new Product("1");
+        $product = new Product('1', 100);
 
         // Act
         $this->obj->addProduct($product);
@@ -68,11 +70,12 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_AddSameProductTwice()
     {
         // Arrange
-        $product = new Product("1");
+        $product = new Product('1', 100);
         $wasEmptyBefore = $this->obj->isEmpty();
         $totalQuantityBefore = $this->obj->getTotalProductsQuantity();
 
@@ -106,11 +109,12 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_ReturnOneItem_When_AddOneProduct()
     {
         // Arrange
-        $product = new Product("1");
+        $product = new Product('1', 100);
         $this->obj->addProduct($product);
 
         // Act
@@ -122,12 +126,13 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_ReturnTwoItems_When_AddTwoDifferentProducts()
     {
         // Arrange
-        $product1 = new Product("1");
-        $product2 = new Product("2");
+        $product1 = new Product('1', 100);
+        $product2 = new Product('2', 200);
         $this->obj->addProduct($product1);
         $this->obj->addProduct($product2);
 
@@ -143,11 +148,12 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_ReturnTwoItems_When_AddSameProductTwice()
     {
         // Arrange
-        $product = new Product("1");
+        $product = new Product('1', 100);
         $this->obj->addProduct($product);
         $this->obj->addProduct($product);
 
@@ -160,13 +166,29 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     */
+    public function Should_ThrowException_When_AddProductWithInvalidPriceValue()
+    {
+        // Assert
+        $this->expectException(InvalidPriceValueException::class);
+
+        // Arrange
+        $product = new Product('1', -100);
+
+        // Act
+        $this->obj->addProduct($product);
+    }
+
+    /**
+     * @test
      * @throws ProductNotFoundException
+     * @throws InvalidPriceValueException
      */
     public function Should_RemoveProduct()
     {
         // Arrange
-        $product1 = new Product("1");
-        $product2 = new Product("2");
+        $product1 = new Product('1', 100);
+        $product2 = new Product('2', 200);
         $this->obj->addProduct($product1);
         $this->obj->addProduct($product2);
 
@@ -179,6 +201,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_ThrowException_When_RemoveMissingProduct()
     {
@@ -186,8 +209,8 @@ class OrderTest extends TestCase
         $this->expectException(ProductNotFoundException::class);
 
         // Arrange
-        $product = new Product("1");
-        $missingProduct = new Product("2");
+        $product = new Product('1', 100);
+        $missingProduct = new Product('2', 200);
         $this->obj->addProduct($product);
 
         // Act
@@ -196,6 +219,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_ThrowException_When_RemoveProductFromEmptyOrder()
     {
@@ -204,7 +228,7 @@ class OrderTest extends TestCase
         $this->expectException(ProductNotFoundException::class);
 
         // Arrange
-        $product = new Product("1");
+        $product = new Product('1', 100);
 
         // Act
         $this->obj->removeProduct($product);

@@ -2,6 +2,7 @@
 namespace Karolak\EcoEngine\Domain\Sale\ValueObject;
 
 use Karolak\EcoEngine\Domain\Common\ValueObject\ValueObjectInterface;
+use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
 
 /**
  * Class Product
@@ -19,9 +20,13 @@ class Product implements ValueObjectInterface
      * Product constructor.
      * @param string $id
      * @param int $price
+     * @throws InvalidPriceValueException
      */
-    public function __construct(string $id, int $price = 0)
+    public function __construct(string $id, int $price)
     {
+        if ($price < 0) {
+            throw new InvalidPriceValueException();
+        }
         $this->id = $id;
         $this->price = $price;
     }
@@ -37,7 +42,7 @@ class Product implements ValueObjectInterface
     /**
      * @return int
      */
-    public function getPrice(): float
+    public function getPrice(): int
     {
         return $this->price;
     }
