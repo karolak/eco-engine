@@ -1,11 +1,13 @@
 <?php
 namespace Karolak\EcoEngine\Domain\Sale\ValueObject;
 
+use Karolak\EcoEngine\Domain\Common\ValueObject\ValueObjectInterface;
+
 /**
  * Class Product
  * @package Karolak\EcoEngine\Domain\Sale\ValueObject
  */
-class Product
+class Product implements ValueObjectInterface
 {
     /** @var string */
     private $id;
@@ -41,12 +43,22 @@ class Product
     }
 
     /**
-     * @param Product $product
+     * @param ValueObjectInterface|Product $object
      * @return bool
      */
-    public function equals(Product $product): bool
+    public function equals(ValueObjectInterface $object): bool
     {
-        return $this->id == $product->getId()
-            && $this->price == $product->getPrice();
+        return $object instanceof Product
+            && $this->id == $object->getId()
+            && $this->price == $object->getPrice();
+    }
+
+    /**
+     * @return string
+     * @codeCoverageIgnore
+     */
+    public function __toString(): string
+    {
+        return $this->id;
     }
 }

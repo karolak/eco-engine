@@ -6,6 +6,7 @@ use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Shipment;
 
 /**
  * Class Order
@@ -16,12 +17,16 @@ class Order
     /** @var ItemsCollection|Item[] */
     private $items;
 
+    /** @var Shipment */
+    private $shipment;
+
     /**
      * Order constructor.
      */
     public function __construct()
     {
         $this->items = new ItemsCollection();
+        $this->shipment = null;
     }
 
     /**
@@ -112,6 +117,22 @@ class Order
     public function isEmpty(): bool
     {
         return $this->items->isEmpty();
+    }
+
+    /**
+     * @param Shipment $shipment
+     */
+    public function setShipment(Shipment $shipment): void
+    {
+        $this->shipment = $shipment;
+    }
+
+    /**
+     * @return Shipment
+     */
+    public function getShipment(): Shipment
+    {
+        return $this->shipment;
     }
 
     /**

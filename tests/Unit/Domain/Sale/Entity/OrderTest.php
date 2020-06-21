@@ -1,10 +1,15 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Entity;
 
+use Karolak\EcoEngine\Domain\Common\ValueObject\Country;
+use Karolak\EcoEngine\Domain\Common\ValueObject\GeoPoint;
+use Karolak\EcoEngine\Domain\Common\ValueObject\HomeAddress;
+use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Shipment;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -56,7 +61,6 @@ class OrderTest extends TestCase
         $this->assertFalse($isEmptyNow);
         $this->assertEquals(0, $totalQuantityBefore);
         $this->assertEquals(1, $totalQuantityAfter);
-
     }
 
     /**
@@ -193,9 +197,12 @@ class OrderTest extends TestCase
 
         // Act
         $items = $this->obj->getItems();
+        $first = reset($items);
+        $second = end($items);
 
         // Assert
         $this->assertCount(2, $items);
+        $this->assertFalse($first->equals($second));
     }
 
     /**
@@ -308,5 +315,49 @@ class OrderTest extends TestCase
 
         // Act
         $this->obj->removeProduct($missingProduct);
+    }
+
+    /**
+     * @test
+     */
+    public function Should_SetHomeShipment()
+    {
+        // Arrange
+        $address = new HomeAddress(
+            new Country('PL', 'Polska'),
+            '',
+            'Warszawa',
+            '00-000',
+            'testowa',
+            '12',
+            ''
+        );
+        $shipment = new Shipment('ups', $address);
+
+        // Act
+        $this->obj->setShipment($shipment);
+
+        // Assert
+        $this->assertTrue($shipment->equals($this->obj->getShipment()));
+    }
+
+    /**
+     * @test
+     */
+    public function Should_SetPickupShipment()
+    {
+        // Arrange
+        $address = new PickupPointAddress(
+            '12345',
+            'Normal access point',
+            new GeoPoint(52.123, 38.123)
+        );
+        $shipment = new Shipment('ups_access_point', $address);
+
+        // Act
+        $this->obj->setShipment($shipment);
+
+        // Assert
+        $this->assertTrue($shipment->equals($this->obj->getShipment()));
     }
 }
