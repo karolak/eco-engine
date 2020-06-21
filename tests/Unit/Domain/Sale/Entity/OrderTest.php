@@ -8,7 +8,6 @@ use Karolak\EcoEngine\Domain\Common\ValueObject\GeoPoint;
 use Karolak\EcoEngine\Domain\Common\ValueObject\HomeAddress;
 use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
-use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
@@ -46,7 +45,6 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
      */
     public function Should_AddOneProduct()
     {
@@ -70,46 +68,6 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
-     */
-    public function Should_AddProductWithQuantity()
-    {
-        // Arrange
-        $wasEmptyBefore = $this->obj->isEmpty();
-        $totalQuantityBefore = $this->obj->getTotalProductsQuantity();
-        $product = new Product("1");
-
-        // Act
-        $this->obj->addProduct($product, 4);
-
-        $isEmptyNow = $this->obj->isEmpty();
-        $totalQuantityAfter = $this->obj->getTotalProductsQuantity();
-
-        // Assert
-        $this->assertTrue($wasEmptyBefore);
-        $this->assertFalse($isEmptyNow);
-        $this->assertEquals(0, $totalQuantityBefore);
-        $this->assertEquals(4, $totalQuantityAfter);
-    }
-
-    /**
-     * @test
-     */
-    public function Should_TrowException_When_AddProductWithInvalidQuantity()
-    {
-        // Assert
-        $this->expectException(InvalidItemQuantityException::class);
-
-        // Arrange
-        $product = new Product("1");
-
-        // Act
-        $this->obj->addProduct($product, 0);
-    }
-
-    /**
-     * @test
-     * @throws InvalidItemQuantityException
      */
     public function Should_AddSameProductTwice()
     {
@@ -134,31 +92,6 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
-     */
-    public function Should_AddSameProductTwice_When_AddWithDifferentQuantity()
-    {
-        // Arrange
-        $product = new Product("1");
-        $wasEmptyBefore = $this->obj->isEmpty();
-        $totalQuantityBefore = $this->obj->getTotalProductsQuantity();
-
-        // Act
-        $this->obj->addProduct($product, 1);
-        $this->obj->addProduct($product, 2);
-
-        $isEmptyNow = $this->obj->isEmpty();
-        $totalQuantityAfter = $this->obj->getTotalProductsQuantity();
-
-        // Assert
-        $this->assertTrue($wasEmptyBefore);
-        $this->assertFalse($isEmptyNow);
-        $this->assertEquals(0, $totalQuantityBefore);
-        $this->assertEquals(3, $totalQuantityAfter);
-    }
-
-    /**
-     * @test
      */
     public function Should_ReturnEmptyArrayOfItems_When_IsEmpty()
     {
@@ -173,7 +106,6 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
      */
     public function Should_ReturnOneItem_When_AddOneProduct()
     {
@@ -190,7 +122,6 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
      */
     public function Should_ReturnTwoItems_When_AddTwoDifferentProducts()
     {
@@ -212,9 +143,8 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
      */
-    public function Should_ReturnOneItem_When_AddSameProductTwice()
+    public function Should_ReturnTwoItems_When_AddSameProductTwice()
     {
         // Arrange
         $product = new Product("1");
@@ -225,68 +155,11 @@ class OrderTest extends TestCase
         $items = $this->obj->getItems();
 
         // Assert
-        $this->assertCount(1, $items);
+        $this->assertCount(2, $items);
     }
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
-     * @throws ProductNotFoundException
-     */
-    public function Should_ChangeProductQuantity()
-    {
-        // Arrange
-        $product1 = new Product("1");
-        $product2 = new Product("2");
-        $this->obj->addProduct($product1, 1);
-        $this->obj->addProduct($product2, 1);
-
-        // Act
-        $this->obj->changeProductQuantity($product2, 3);
-
-        // Assert
-        $this->assertEquals(4, $this->obj->getTotalProductsQuantity());
-    }
-
-    /**
-     * @test
-     * @throws InvalidItemQuantityException
-     * @throws ProductNotFoundException
-     */
-    public function Should_ThrowException_When_ChangeProductQuantityToInvalid()
-    {
-        // Assert
-        $this->expectException(InvalidItemQuantityException::class);
-
-        // Arrange
-        $product = new Product("1");
-        $this->obj->addProduct($product, 1);
-
-        // Act
-        $this->obj->changeProductQuantity($product, 0);
-    }
-
-    /**
-     * @test
-     * @throws InvalidItemQuantityException
-     */
-    public function Should_ThrowException_When_ChangeMissingProductQuantity()
-    {
-        // Assert
-        $this->expectException(ProductNotFoundException::class);
-
-        // Arrange
-        $product = new Product("1");
-        $missingProduct = new Product("2");
-        $this->obj->addProduct($product, 1);
-
-        // Act
-        $this->obj->changeProductQuantity($missingProduct, 3);
-    }
-
-    /**
-     * @test
-     * @throws InvalidItemQuantityException
      * @throws ProductNotFoundException
      */
     public function Should_RemoveProduct()
@@ -294,8 +167,8 @@ class OrderTest extends TestCase
         // Arrange
         $product1 = new Product("1");
         $product2 = new Product("2");
-        $this->obj->addProduct($product1, 1);
-        $this->obj->addProduct($product2, 1);
+        $this->obj->addProduct($product1);
+        $this->obj->addProduct($product2);
 
         // Act
         $this->obj->removeProduct($product1);
@@ -306,7 +179,6 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidItemQuantityException
      */
     public function Should_ThrowException_When_RemoveMissingProduct()
     {
@@ -316,10 +188,26 @@ class OrderTest extends TestCase
         // Arrange
         $product = new Product("1");
         $missingProduct = new Product("2");
-        $this->obj->addProduct($product, 1);
+        $this->obj->addProduct($product);
 
         // Act
         $this->obj->removeProduct($missingProduct);
+    }
+
+    /**
+     * @test
+     */
+    public function Should_ThrowException_When_RemoveProductFromEmptyOrder()
+    {
+        // Assert
+        $this->assertTrue($this->obj->isEmpty());
+        $this->expectException(ProductNotFoundException::class);
+
+        // Arrange
+        $product = new Product("1");
+
+        // Act
+        $this->obj->removeProduct($product);
     }
 
     /**

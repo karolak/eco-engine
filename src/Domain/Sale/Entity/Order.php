@@ -2,7 +2,6 @@
 namespace Karolak\EcoEngine\Domain\Sale\Entity;
 
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
-use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
@@ -46,23 +45,10 @@ class Order
 
     /**
      * @param Product $product
-     * @param int $quantity
-     * @throws InvalidItemQuantityException
      */
-    public function addProduct(Product $product, int $quantity = 1)
+    public function addProduct(Product $product)
     {
-        if ($quantity <= 0) {
-            throw new InvalidItemQuantityException();
-        }
-
-        $key = $this->findItemKeyForProduct($product);
-        if ($key !== null) {
-            $this->addQuantityToItem($key, $quantity);
-
-            return;
-        }
-
-        $this->items->add(new Item($product, $quantity));
+        $this->items->add(new Item($product));
     }
 
     /**
@@ -80,26 +66,6 @@ class Order
     }
 
     /**
-     * @param Product $product
-     * @param int $quantity
-     * @throws InvalidItemQuantityException
-     * @throws ProductNotFoundException
-     */
-    public function changeProductQuantity(Product $product, int $quantity = 1)
-    {
-        if ($quantity <= 0) {
-            throw new InvalidItemQuantityException();
-        }
-
-        $key = $this->findItemKeyForProduct($product);
-        if ($key === null) {
-            throw new ProductNotFoundException();
-        }
-
-        $this->setItemQuantity($key, $quantity);
-    }
-
-    /**
      * @return array
      */
     public function getItems(): array
@@ -112,18 +78,7 @@ class Order
      */
     public function getTotalProductsQuantity(): int
     {
-        if ($this->isEmpty()) {
-            return 0;
-        }
-
-        return array_sum(
-            array_map(
-                function (Item $item) {
-                    return $item->getQuantity();
-                },
-                $this->items->toArray()
-            )
-        );
+        return $this->items->count();
     }
 
     /**
@@ -210,38 +165,12 @@ class Order
 
         $result = null;
         foreach ($this->items as $key => $value) {
-            if ($value->getProduct()->equals($product)) {
+            if ($product->equals($value->getProduct())) {
                 $result = $key;
                 break;
             }
         }
 
         return $result;
-    }
-
-    /**
-     * @param int $key
-     * @param int $quantity
-     */
-    private function addQuantityToItem(int $key, int $quantity)
-    {
-        $item = $this->items->get($key);
-        $this->items->set(
-            $key,
-            new Item($item->getProduct(), $item->getQuantity() + $quantity)
-        );
-    }
-
-    /**
-     * @param int $key
-     * @param int $quantity
-     */
-    private function setItemQuantity(int $key, int $quantity)
-    {
-        $item = $this->items->get($key);
-        $this->items->set(
-            $key,
-            new Item($item->getProduct(), $quantity)
-        );
     }
 }
