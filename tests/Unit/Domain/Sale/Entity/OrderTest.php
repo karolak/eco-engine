@@ -1,13 +1,16 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Entity;
 
+use Karolak\EcoEngine\Domain\Common\Exception\InvalidEmailException;
 use Karolak\EcoEngine\Domain\Common\ValueObject\Country;
+use Karolak\EcoEngine\Domain\Common\ValueObject\Email;
 use Karolak\EcoEngine\Domain\Common\ValueObject\GeoPoint;
 use Karolak\EcoEngine\Domain\Common\ValueObject\HomeAddress;
 use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Shipment;
@@ -375,5 +378,80 @@ class OrderTest extends TestCase
 
         // Assert
         $this->assertTrue($payment->equals($this->obj->getPayment()));
+    }
+
+    /**
+     * @test
+     */
+    public function Should_SetCustomer()
+    {
+        // Arrange
+        $customer = new Customer(
+            'Test',
+            'Testowy',
+            '123123123',
+            new Email('test@test.pl'),
+            new HomeAddress(
+                new Country('PL', 'Polska'),
+                '',
+                'Warszawa',
+                '00-000',
+                'testowa',
+                '12',
+                ''
+            )
+        );
+
+        // Act
+        $this->obj->setCustomer($customer);
+
+        // Assert
+        $this->assertTrue($customer->equals($this->obj->getCustomer()));
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidEmailsDataProvider
+     * @param string $email
+     */
+    public function Should_ThrowException_When_SetCustomerWithInvalidEmail(string $email)
+    {
+        // Assert
+        $this->expectException(InvalidEmailException::class);
+
+        // Arrange
+        $customer = new Customer(
+            'Test',
+            'Testowy',
+            '123123123',
+            new Email($email),
+            new HomeAddress(
+                new Country('PL', 'Polska'),
+                '',
+                'Warszawa',
+                '00-000',
+                'testowa',
+                '12',
+                ''
+            )
+        );
+
+        // Act
+        $this->obj->setCustomer($customer);
+    }
+
+    /**
+     * @return array
+     */
+    public function invalidEmailsDataProvider()
+    {
+        return [
+            ['test'],
+            ['test@'],
+            ['test@test'],
+            ['@test.pl'],
+            ['@test'],
+            ['test@test.']
+        ];
     }
 }

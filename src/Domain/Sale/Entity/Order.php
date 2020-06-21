@@ -4,6 +4,7 @@ namespace Karolak\EcoEngine\Domain\Sale\Entity;
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
@@ -18,6 +19,9 @@ class Order
     /** @var ItemsCollection|Item[] */
     private $items;
 
+    /** @var Customer|null */
+    private $customer;
+
     /** @var Shipment|null */
     private $shipment;
 
@@ -30,6 +34,7 @@ class Order
     public function __construct()
     {
         $this->items = new ItemsCollection();
+        $this->customer = null;
         $this->shipment = null;
         $this->payment = null;
     }
@@ -122,6 +127,22 @@ class Order
     public function isEmpty(): bool
     {
         return $this->items->isEmpty();
+    }
+
+    /**
+     * @param Customer|null $customer
+     */
+    public function setCustomer(?Customer $customer): void
+    {
+        $this->customer = $customer;
+    }
+
+    /**
+     * @return Customer|null
+     */
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
     }
 
     /**
