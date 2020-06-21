@@ -3,6 +3,7 @@ namespace Karolak\EcoEngine\Domain\Sale\ValueObject;
 
 use Karolak\EcoEngine\Domain\Common\ValueObject\AddressInterface;
 use Karolak\EcoEngine\Domain\Common\ValueObject\ValueObjectInterface;
+use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
 
 /**
  * Class Shipment
@@ -13,17 +14,26 @@ class Shipment implements ValueObjectInterface
     /** @var string */
     private $code;
 
+    /** @var int */
+    private $price;
+
     /** @var AddressInterface */
     private $address;
 
     /**
      * Shipment constructor.
-     * @param $code
+     * @param string $code
+     * @param $price
      * @param AddressInterface $address
+     * @throws InvalidPriceValueException
      */
-    public function __construct($code, AddressInterface $address)
+    public function __construct($code, $price, AddressInterface $address)
     {
+        if ($price < 0) {
+            throw new InvalidPriceValueException();
+        }
         $this->code = $code;
+        $this->price = $price;
         $this->address = $address;
     }
 
@@ -33,6 +43,14 @@ class Shipment implements ValueObjectInterface
     public function getCode(): string
     {
         return $this->code;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrice(): int
+    {
+        return $this->price;
     }
 
     /**
@@ -51,6 +69,7 @@ class Shipment implements ValueObjectInterface
     {
         return $object instanceof Shipment
             && $this->code === $object->getCode()
+            && $this->price === $object->getPrice()
             && $this->address->equals($object->getAddress());
     }
 

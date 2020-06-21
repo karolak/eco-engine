@@ -99,6 +99,26 @@ class Order
     }
 
     /**
+     * @return int
+     */
+    public function getShipmentPrice(): int
+    {
+        if (empty($this->shipment)) {
+            return 0;
+        }
+
+        return $this->shipment->getPrice();
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalPrice(): int
+    {
+        return $this->getTotalProductsPrice() + $this->getShipmentPrice();
+    }
+
+    /**
      * @return bool
      */
     public function isEmpty(): bool

@@ -46,6 +46,17 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     */
+    public function Should_ReturnTotalZero_When_EmptyOrder()
+    {
+        $this->assertEquals(0, $this->obj->getTotalProductsQuantity());
+        $this->assertEquals(0, $this->obj->getTotalProductsPrice());
+        $this->assertEquals(0, $this->obj->getShipmentPrice());
+        $this->assertEquals(0, $this->obj->getTotalPrice());
+    }
+
+    /**
+     * @test
      * @throws InvalidPriceValueException
      */
     public function Should_AddOneProduct()
@@ -70,6 +81,8 @@ class OrderTest extends TestCase
         $this->assertEquals(1, $totalQuantityAfter);
         $this->assertEquals(0, $totalPriceBefore);
         $this->assertEquals(100, $totalPriceAfter);
+        $this->assertEquals(0, $this->obj->getShipmentPrice());
+        $this->assertEquals(100, $this->obj->getTotalPrice());
     }
 
     /**
@@ -99,6 +112,8 @@ class OrderTest extends TestCase
         $this->assertEquals(2, $totalQuantityAfter);
         $this->assertEquals(0, $totalPriceBefore);
         $this->assertEquals(200, $totalPriceAfter);
+        $this->assertEquals(0, $this->obj->getShipmentPrice());
+        $this->assertEquals(200, $this->obj->getTotalPrice());
     }
 
     /**
@@ -245,6 +260,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_SetHomeShipment()
     {
@@ -258,17 +274,20 @@ class OrderTest extends TestCase
             '12',
             ''
         );
-        $shipment = new Shipment('ups', $address);
+        $shipment = new Shipment('ups', 100, $address);
 
         // Act
         $this->obj->setShipment($shipment);
 
         // Assert
         $this->assertTrue($shipment->equals($this->obj->getShipment()));
+        $this->assertEquals(100, $this->obj->getShipmentPrice());
+        $this->assertEquals(100, $this->obj->getTotalPrice());
     }
 
     /**
      * @test
+     * @throws InvalidPriceValueException
      */
     public function Should_SetPickupShipment()
     {
@@ -278,13 +297,40 @@ class OrderTest extends TestCase
             'Normal access point',
             new GeoPoint(52.123, 38.123)
         );
-        $shipment = new Shipment('ups_access_point', $address);
+        $shipment = new Shipment('ups_access_point', 100, $address);
 
         // Act
         $this->obj->setShipment($shipment);
 
         // Assert
         $this->assertTrue($shipment->equals($this->obj->getShipment()));
+        $this->assertEquals(100, $this->obj->getShipmentPrice());
+        $this->assertEquals(100, $this->obj->getTotalPrice());
+    }
+
+    /**
+     * @test
+     * @throws InvalidPriceValueException
+     */
+    public function Should_ThrowException_When_SetShipmentWithInvalidPrice()
+    {
+        // Assert
+        $this->expectException(InvalidPriceValueException::class);
+
+        // Arrange
+        $address = new HomeAddress(
+            new Country('PL', 'Polska'),
+            '',
+            'Warszawa',
+            '00-000',
+            'testowa',
+            '12',
+            ''
+        );
+        $shipment = new Shipment('ups', -100, $address);
+
+        // Act
+        $this->obj->setShipment($shipment);
     }
 
     /**
