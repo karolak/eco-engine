@@ -53,6 +53,7 @@ class OrderTest extends TestCase
         // Arrange
         $wasEmptyBefore = $this->obj->isEmpty();
         $totalQuantityBefore = $this->obj->getTotalProductsQuantity();
+        $totalPriceBefore = $this->obj->getTotalProductsPrice();
         $product = new Product('1', 100);
 
         // Act
@@ -60,12 +61,15 @@ class OrderTest extends TestCase
 
         $isEmptyNow = $this->obj->isEmpty();
         $totalQuantityAfter = $this->obj->getTotalProductsQuantity();
+        $totalPriceAfter = $this->obj->getTotalProductsPrice();
 
         // Assert
         $this->assertTrue($wasEmptyBefore);
         $this->assertFalse($isEmptyNow);
         $this->assertEquals(0, $totalQuantityBefore);
         $this->assertEquals(1, $totalQuantityAfter);
+        $this->assertEquals(0, $totalPriceBefore);
+        $this->assertEquals(100, $totalPriceAfter);
     }
 
     /**
@@ -78,6 +82,7 @@ class OrderTest extends TestCase
         $product = new Product('1', 100);
         $wasEmptyBefore = $this->obj->isEmpty();
         $totalQuantityBefore = $this->obj->getTotalProductsQuantity();
+        $totalPriceBefore = $this->obj->getTotalProductsPrice();
 
         // Act
         $this->obj->addProduct($product);
@@ -85,12 +90,15 @@ class OrderTest extends TestCase
 
         $isEmptyNow = $this->obj->isEmpty();
         $totalQuantityAfter = $this->obj->getTotalProductsQuantity();
+        $totalPriceAfter = $this->obj->getTotalProductsPrice();
 
         // Assert
         $this->assertTrue($wasEmptyBefore);
         $this->assertFalse($isEmptyNow);
         $this->assertEquals(0, $totalQuantityBefore);
         $this->assertEquals(2, $totalQuantityAfter);
+        $this->assertEquals(0, $totalPriceBefore);
+        $this->assertEquals(200, $totalPriceAfter);
     }
 
     /**
@@ -197,6 +205,7 @@ class OrderTest extends TestCase
 
         // Assert
         $this->assertEquals(1, $this->obj->getTotalProductsQuantity());
+        $this->assertEquals(200, $this->obj->getTotalProductsPrice());
     }
 
     /**

@@ -82,6 +82,23 @@ class Order
     }
 
     /**
+     * @return int
+     */
+    public function getTotalProductsPrice(): int
+    {
+        if ($this->items->isEmpty()) {
+            return 0;
+        }
+
+        return array_sum(
+            array_map(function (Item $item) {
+                return $item->getPrice();
+            },
+            $this->items->toArray())
+        );
+    }
+
+    /**
      * @return bool
      */
     public function isEmpty(): bool

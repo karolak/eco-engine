@@ -22,6 +22,14 @@ class Item implements ValueObjectInterface
     }
 
     /**
+     * @return int
+     */
+    public function getPrice(): int
+    {
+        return $this->product->getPrice();
+    }
+
+    /**
      * @return Product
      */
     public function getProduct(): Product
