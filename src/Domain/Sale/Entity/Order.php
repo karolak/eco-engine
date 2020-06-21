@@ -5,6 +5,7 @@ use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
@@ -22,6 +23,9 @@ class Order
     /** @var Customer|null */
     private $customer;
 
+    /** @var Invoice|null */
+    private $invoice;
+
     /** @var Shipment|null */
     private $shipment;
 
@@ -35,6 +39,7 @@ class Order
     {
         $this->items = new ItemsCollection();
         $this->customer = null;
+        $this->invoice = null;
         $this->shipment = null;
         $this->payment = null;
     }
@@ -143,6 +148,22 @@ class Order
     public function getCustomer(): ?Customer
     {
         return $this->customer;
+    }
+
+    /**
+     * @param Invoice|null $invoice
+     */
+    public function setInvoice(?Invoice $invoice): void
+    {
+        $this->invoice = $invoice;
+    }
+
+    /**
+     * @return Invoice|null
+     */
+    public function getInvoice(): ?Invoice
+    {
+        return $this->invoice;
     }
 
     /**

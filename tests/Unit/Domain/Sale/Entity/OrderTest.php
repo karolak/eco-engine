@@ -11,6 +11,7 @@ use Karolak\EcoEngine\Domain\Sale\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Shipment;
@@ -438,6 +439,33 @@ class OrderTest extends TestCase
 
         // Act
         $this->obj->setCustomer($customer);
+    }
+
+    /**
+     * @test
+     */
+    public function Should_SetInvoice()
+    {
+        // Arrange
+        $invoice = new Invoice(
+            'CompanyName',
+            '1231231231',
+            new HomeAddress(
+                new Country('PL', 'Polska'),
+                '',
+                'Warszawa',
+                '00-000',
+                'testowa',
+                '12',
+                ''
+            )
+        );
+
+        // Act
+        $this->obj->setInvoice($invoice);
+
+        // Assert
+        $this->assertTrue($invoice->equals($this->obj->getInvoice()));
     }
 
     /**
