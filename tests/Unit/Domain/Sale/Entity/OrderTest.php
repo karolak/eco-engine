@@ -8,6 +8,7 @@ use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Shipment;
 use PHPUnit\Framework\TestCase;
@@ -359,5 +360,20 @@ class OrderTest extends TestCase
 
         // Assert
         $this->assertTrue($shipment->equals($this->obj->getShipment()));
+    }
+
+    /**
+     * @test
+     */
+    public function Should_SetPayment()
+    {
+        // Arrange
+        $payment = new Payment('cod');
+
+        // Act
+        $this->obj->setPayment($payment);
+
+        // Assert
+        $this->assertTrue($payment->equals($this->obj->getPayment()));
     }
 }

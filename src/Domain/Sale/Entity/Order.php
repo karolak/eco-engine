@@ -5,6 +5,7 @@ use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidItemQuantityException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Shipment;
 
@@ -17,8 +18,11 @@ class Order
     /** @var ItemsCollection|Item[] */
     private $items;
 
-    /** @var Shipment */
+    /** @var Shipment|null */
     private $shipment;
+
+    /** @var Payment|null */
+    private $payment;
 
     /**
      * Order constructor.
@@ -27,6 +31,7 @@ class Order
     {
         $this->items = new ItemsCollection();
         $this->shipment = null;
+        $this->payment = null;
     }
 
     /**
@@ -120,19 +125,35 @@ class Order
     }
 
     /**
-     * @param Shipment $shipment
+     * @param Shipment|null $shipment
      */
-    public function setShipment(Shipment $shipment): void
+    public function setShipment(?Shipment $shipment): void
     {
         $this->shipment = $shipment;
     }
 
     /**
-     * @return Shipment
+     * @return Shipment|null
      */
-    public function getShipment(): Shipment
+    public function getShipment(): ?Shipment
     {
         return $this->shipment;
+    }
+
+    /**
+     * @param Payment|null $payment
+     */
+    public function setPayment(?Payment $payment): void
+    {
+        $this->payment = $payment;
+    }
+
+    /**
+     * @return Payment|null
+     */
+    public function getPayment(): ?Payment
+    {
+        return $this->payment;
     }
 
     /**
