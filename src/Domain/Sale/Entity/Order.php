@@ -1,8 +1,12 @@
 <?php
 namespace Karolak\EcoEngine\Domain\Sale\Entity;
 
+use Karolak\EcoEngine\Domain\Sale\Collection\AdjustmentsCollection;
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
+use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
+use Karolak\EcoEngine\Domain\Sale\Exception\ItemNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Adjustment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
@@ -66,7 +70,29 @@ class Order
     }
 
     /**
-     * @return array
+     * @param Adjustment $adjustment
+     * @param Item $item
+     * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
+     */
+    public function addAdjustmentToItem(Adjustment $adjustment, Item $item)
+    {
+        if ($adjustment->getValue() < 0 && abs($adjustment->getValue()) > $item->getPrice()) {
+            throw new InvalidPriceValueException();
+        }
+
+        $itemKey = $this->findItemKey($item);
+        if ($itemKey === null) {
+            throw new ItemNotFoundException();
+        }
+
+        $adjustments = new AdjustmentsCollection(...$item->getAdjustments());
+        $adjustments->add($adjustment);
+        $this->items->set($itemKey, new Item($item->getProduct(), $adjustments));
+    }
+
+    /**
+     * @return Item[]
      */
     public function getItems(): array
     {
@@ -203,6 +229,27 @@ class Order
         $result = null;
         foreach ($this->items as $key => $value) {
             if ($product->equals($value->getProduct())) {
+                $result = $key;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Item $item
+     * @return int|null
+     */
+    private function findItemKey(Item $item): ?int
+    {
+        if ($this->items->count() === 0) {
+            return null;
+        }
+
+        $result = null;
+        foreach ($this->items as $key => $value) {
+            if ($item->equals($value)) {
                 $result = $key;
                 break;
             }

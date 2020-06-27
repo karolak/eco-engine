@@ -2,6 +2,7 @@
 namespace Karolak\EcoEngine\Domain\Sale\ValueObject;
 
 use Karolak\EcoEngine\Domain\Common\ValueObject\ValueObjectInterface;
+use Karolak\EcoEngine\Domain\Sale\Collection\AdjustmentsCollection;
 
 /**
  * Class Item
@@ -12,13 +13,19 @@ class Item implements ValueObjectInterface
     /** @var Product */
     private $product;
 
+    /** @var AdjustmentsCollection|Adjustment[] */
+    private $adjustments;
+
     /**
      * Item constructor.
      * @param Product $product
+     * @param AdjustmentsCollection|null $adjustmentsCollection
      */
-    public function __construct(Product $product)
+    public function __construct(Product $product, ?AdjustmentsCollection $adjustmentsCollection = null)
     {
         $this->product = $product;
+        $this->adjustments = $adjustmentsCollection instanceof AdjustmentsCollection ?
+            $adjustmentsCollection : new AdjustmentsCollection();
     }
 
     /**
@@ -26,7 +33,16 @@ class Item implements ValueObjectInterface
      */
     public function getPrice(): int
     {
-        return $this->product->getPrice();
+        $result = $this->product->getPrice();
+        if ($this->adjustments->isEmpty()) {
+            return $result;
+        }
+
+        foreach ($this->adjustments as $adjustment) {
+            $result += $adjustment->getValue();
+        }
+
+        return $result;
     }
 
     /**
@@ -35,6 +51,14 @@ class Item implements ValueObjectInterface
     public function getProduct(): Product
     {
         return $this->product;
+    }
+
+    /**
+     * @return Adjustment[]
+     */
+    public function getAdjustments(): array
+    {
+        return $this->adjustments->toArray();
     }
 
     /**

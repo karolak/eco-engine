@@ -9,9 +9,12 @@ use Karolak\EcoEngine\Domain\Common\ValueObject\HomeAddress;
 use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
+use Karolak\EcoEngine\Domain\Sale\Exception\ItemNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Adjustment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Shipment;
@@ -256,6 +259,140 @@ class OrderTest extends TestCase
 
         // Act
         $this->obj->removeProduct($product);
+    }
+
+    /**
+     * @test
+     * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
+     */
+    public function Should_AddAdjustmentToOneItem()
+    {
+        // Arrange
+        $product1 = new Product('1', 1000);
+        $product2 = new Product('1', 2000);
+        $this->obj->addProduct($product1);
+        $this->obj->addProduct($product2);
+        $adjustment = new Adjustment(-200, 'coupon', 'PROMO');
+        $items = $this->obj->getItems();
+        $item = reset($items);
+
+        // Act
+        $this->obj->addAdjustmentToItem($adjustment, $item);
+
+        $items = $this->obj->getItems();
+        /** @var Item $item */
+        $item = reset($items);
+        $itemAdjustments = $item->getAdjustments();
+
+        // Assert
+        $this->assertEquals(2800, $this->obj->getTotalPrice());
+        $this->assertEquals(800, $item->getPrice());
+        $this->assertTrue($adjustment->equals(end($itemAdjustments)));
+    }
+
+    /**
+     * @test
+     * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
+     */
+    public function Should_AddAdjustmentToOneItemTwice()
+    {
+        // Arrange
+        $product1 = new Product('1', 1000);
+        $product2 = new Product('1', 2000);
+        $this->obj->addProduct($product1);
+        $this->obj->addProduct($product2);
+        $adjustment = new Adjustment(-200, 'coupon', 'PROMO');
+
+        // Act
+        for ($i = 0; $i < 2; $i++) {
+            $items = $this->obj->getItems();
+            $item = reset($items);
+            $this->obj->addAdjustmentToItem($adjustment, $item);
+        }
+
+        $items = $this->obj->getItems();
+        /** @var Item $item */
+        $item = reset($items);
+        $itemAdjustments = $item->getAdjustments();
+
+        // Assert
+        $this->assertEquals(2600, $this->obj->getTotalPrice());
+        $this->assertEquals(600, $item->getPrice());
+        $this->assertCount(2, $itemAdjustments);
+    }
+
+    /**
+     * @test
+     * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
+     */
+    public function Should_AddAdjustmentToTwoItems()
+    {
+        // Arrange
+        $product1 = new Product('1', 1000);
+        $product2 = new Product('1', 2000);
+        $this->obj->addProduct($product1);
+        $this->obj->addProduct($product2);
+        $adjustment = new Adjustment(-200, 'coupon', 'PROMO');
+        $items = $this->obj->getItems();
+        $item1 = reset($items);
+        $item2 = end($items);
+
+        // Act
+        $this->obj->addAdjustmentToItem($adjustment, $item1);
+        $this->obj->addAdjustmentToItem($adjustment, $item2);
+
+        $items = $this->obj->getItems();
+        /** @var Item $item */
+        $item1 = reset($items);
+        $item2 = end($items);
+
+        // Assert
+        $this->assertEquals(2600, $this->obj->getTotalPrice());
+        $this->assertEquals(800, $item1->getPrice());
+        $this->assertEquals(1800, $item2->getPrice());
+    }
+
+    /**
+     * @test
+     * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
+     */
+    public function Should_ThrowException_When_AddAdjustmentToNotExistingItem()
+    {
+        // Assert
+        $this->expectException(ItemNotFoundException::class);
+
+        // Arrange
+        $product = new Product('1', 1000);
+        $item = new Item($product);
+        $adjustment = new Adjustment(-200, 'coupon', 'PROMO');
+
+        // Act
+        $this->obj->addAdjustmentToItem($adjustment, $item);
+    }
+
+    /**
+     * @test
+     * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
+     */
+    public function Should_ThrowException_When_AdjustmentValueIsTooBig()
+    {
+        // Assert
+        $this->expectException(InvalidPriceValueException::class);
+
+        // Arrange
+        $product = new Product('1', 1000);
+        $this->obj->addProduct($product);
+        $adjustment = new Adjustment(-2000, 'coupon', 'PROMO');
+        $items = $this->obj->getItems();
+        $item = end($items);
+
+        // Act
+        $this->obj->addAdjustmentToItem($adjustment, $item);
     }
 
     /**

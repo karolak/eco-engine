@@ -2,19 +2,18 @@
 namespace Karolak\EcoEngine\Test\Unit\Infrastructure\Sale\Collection;
 
 use Karolak\EcoEngine\Domain\Common\Collection\Collection;
-use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
+use Karolak\EcoEngine\Domain\Sale\Collection\AdjustmentsCollection;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
-use Karolak\EcoEngine\Domain\Sale\ValueObject\Item;
-use Karolak\EcoEngine\Domain\Sale\ValueObject\Product;
+use Karolak\EcoEngine\Domain\Sale\ValueObject\Adjustment;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class ItemsCollectionTest.
+ * Class AdjustmentsCollectionTest.
  * @package Karolak\EcoEngine\Test\Unit\Infrastructure\Sale\Collection
  */
-class ItemsCollectionTest extends TestCase
+class AdjustmentsCollectionTest extends TestCase
 {
-    /** @var ItemsCollection */
+    /** @var AdjustmentsCollection */
     private $obj;
 
     /**
@@ -23,7 +22,7 @@ class ItemsCollectionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->obj = new ItemsCollection();
+        $this->obj = new AdjustmentsCollection();
     }
 
     /**
@@ -37,16 +36,11 @@ class ItemsCollectionTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidPriceValueException
      */
     public function Should_AddItem()
     {
-        // Arrange
-        $productId = '1';
-        $productPrice = 100;
-
         // Act
-        $this->obj->add(new Item(new Product($productId, $productPrice)));
+        $this->obj->add(new Adjustment(-100, 'promo'));
 
         // Assert
         $this->assertFalse($this->obj->isEmpty());
@@ -54,12 +48,11 @@ class ItemsCollectionTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidPriceValueException
      */
     public function Should_RemoveItem()
     {
         // Arrange
-        $this->obj->add(new Item(new Product('1', 100)));
+        $this->obj->add(new Adjustment(-100, 'promo'));
 
         // Act
         $this->obj->remove(0);
@@ -82,12 +75,11 @@ class ItemsCollectionTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidPriceValueException
      */
     public function Should_ReturnItem_When_FoundByKey()
     {
         // Arrange
-        $item = new Item(new Product('1', 100));
+        $item = new Adjustment(-100, 'promo');
         $this->obj->add($item);
 
         // Act
@@ -117,7 +109,7 @@ class ItemsCollectionTest extends TestCase
     public function Should_NotReturnItem_When_NotFoundInNotEmptyCollection()
     {
         // Arrange
-        $this->obj->add(new Item(new Product('1', 100)));
+        $this->obj->add(new Adjustment(-100, 'promo'));
 
         // Act
         $result = $this->obj->get(3);
@@ -129,13 +121,12 @@ class ItemsCollectionTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidPriceValueException
      */
     public function Should_SetItem_When_EmptyCollection()
     {
         // Arrange
         $index = 3;
-        $item = new Item(new Product('1', 100));
+        $item = new Adjustment(-100, 'promo');
 
         // Act
         $this->obj->set($index, $item);
@@ -148,14 +139,13 @@ class ItemsCollectionTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidPriceValueException
      */
     public function Should_ReplaceItem()
     {
         // Arrange
         $index = 3;
-        $item = new Item(new Product('1', 100));
-        $this->obj->set($index, new Item(new Product('2', 200)));
+        $item = new Adjustment(-100, 'promo');
+        $this->obj->set($index, new Adjustment(-200, 'promo'));
 
         // Act
         $this->obj->set($index, $item);
