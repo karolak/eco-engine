@@ -5,7 +5,6 @@ use Karolak\EcoEngine\Domain\Sale\Collection\AdjustmentsCollection;
 use Karolak\EcoEngine\Domain\Sale\Collection\ItemsCollection;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ItemNotFoundException;
-use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Adjustment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;
@@ -56,14 +55,14 @@ class Order
     }
 
     /**
-     * @param Product $product
-     * @throws ProductNotFoundException
+     * @param Item $item
+     * @throws ItemNotFoundException
      */
-    public function removeProduct(Product $product)
+    public function removeItem(Item $item)
     {
-        $key = $this->findItemKeyForProduct($product);
+        $key = $this->findItemKey($item);
         if ($key === null) {
-            throw new ProductNotFoundException();
+            throw new ItemNotFoundException();
         }
 
         $this->items->remove($key);
@@ -214,27 +213,6 @@ class Order
     public function getPayment(): ?Payment
     {
         return $this->payment;
-    }
-
-    /**
-     * @param Product $product
-     * @return int|null
-     */
-    private function findItemKeyForProduct(Product $product): ?int
-    {
-        if ($this->items->count() === 0) {
-            return null;
-        }
-
-        $result = null;
-        foreach ($this->items as $key => $value) {
-            if ($product->equals($value->getProduct())) {
-                $result = $key;
-                break;
-            }
-        }
-
-        return $result;
     }
 
     /**

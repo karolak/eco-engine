@@ -207,19 +207,20 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws ProductNotFoundException
      * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
      */
-    public function Should_RemoveProduct()
+    public function Should_RemoveItem()
     {
         // Arrange
         $product1 = new Product('1', 100);
         $product2 = new Product('2', 200);
         $this->obj->addProduct($product1);
         $this->obj->addProduct($product2);
+        $items = $this->obj->getItems();
 
         // Act
-        $this->obj->removeProduct($product1);
+        $this->obj->removeItem(reset($items));
 
         // Assert
         $this->assertEquals(1, $this->obj->getTotalProductsQuantity());
@@ -230,35 +231,36 @@ class OrderTest extends TestCase
      * @test
      * @throws InvalidPriceValueException
      */
-    public function Should_ThrowException_When_RemoveMissingProduct()
+    public function Should_ThrowException_When_RemoveSameItemTwice()
     {
         // Assert
-        $this->expectException(ProductNotFoundException::class);
+        $this->expectException(ItemNotFoundException::class);
 
         // Arrange
         $product = new Product('1', 100);
-        $missingProduct = new Product('2', 200);
         $this->obj->addProduct($product);
+        $item = new Item($product);
 
         // Act
-        $this->obj->removeProduct($missingProduct);
+        $this->obj->removeItem($item);
+        $this->obj->removeItem($item);
     }
 
     /**
      * @test
      * @throws InvalidPriceValueException
      */
-    public function Should_ThrowException_When_RemoveProductFromEmptyOrder()
+    public function Should_ThrowException_When_RemoveItemFromEmptyOrder()
     {
         // Assert
         $this->assertTrue($this->obj->isEmpty());
-        $this->expectException(ProductNotFoundException::class);
+        $this->expectException(ItemNotFoundException::class);
 
         // Arrange
         $product = new Product('1', 100);
 
         // Act
-        $this->obj->removeProduct($product);
+        $this->obj->removeItem(new Item($product));
     }
 
     /**
