@@ -10,7 +10,6 @@ use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Exception\ItemNotFoundException;
-use Karolak\EcoEngine\Domain\Sale\Exception\ProductNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Adjustment;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Customer;
 use Karolak\EcoEngine\Domain\Sale\ValueObject\Invoice;

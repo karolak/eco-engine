@@ -11,7 +11,7 @@ use Karolak\EcoEngine\Domain\Sale\ValueObject\Adjustment;
 class AdjustmentsCollection extends Collection
 {
     /**
-     * AdjustmentsArrayCollection constructor.
+     * AdjustmentsCollection constructor.
      * @param Adjustment ...$items
      */
     public function __construct(Adjustment ...$items)
