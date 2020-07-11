@@ -1,6 +1,7 @@
 <?php
 namespace Karolak\EcoEngine\Domain\Sale\Promotion\Action;
 
+use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidGroupSizeException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
 
 /**
@@ -10,27 +11,45 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueExcepti
 class CheapestItemDiscountAction implements ActionInterface
 {
     /** @var float */
-    private $percent;
+    private $percentDiscount;
+
+    /** @var int */
+    private $inEveryGroupOf;
 
     /**
      * CheapestItemDiscountAction constructor.
-     * @param float $percent
+     * @param float $percentDiscount
+     * @param int $inEveryGroupOf
      * @throws InvalidPercentValueException
+     * @throws InvalidGroupSizeException
      */
-    public function __construct(float $percent = 100.00)
+    public function __construct(float $percentDiscount = 100.00, int $inEveryGroupOf = 0)
     {
-        if ($percent < 0 || $percent > 100) {
+        if ($percentDiscount < 0 || $percentDiscount > 100) {
             throw new InvalidPercentValueException();
         }
 
-        $this->percent = $percent;
+        if ($inEveryGroupOf < 0) {
+            throw new InvalidGroupSizeException();
+        }
+
+        $this->percentDiscount = $percentDiscount;
+        $this->inEveryGroupOf = $inEveryGroupOf;
     }
 
     /**
      * @return float
      */
-    public function getPercent(): float
+    public function getPercentDiscount(): float
     {
-        return $this->percent;
+        return $this->percentDiscount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getInEveryGroupOf(): int
+    {
+        return $this->inEveryGroupOf;
     }
 }

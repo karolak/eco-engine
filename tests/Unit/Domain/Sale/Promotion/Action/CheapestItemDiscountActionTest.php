@@ -3,6 +3,7 @@ namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Action;
 
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidGroupSizeException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
 use PHPUnit\Framework\TestCase;
 
@@ -24,15 +25,32 @@ class CheapestItemDiscountActionTest extends TestCase
     /**
      * @test
      * @dataProvider invalidPercentDataProvider
-     * @param $percent
+     * @param float $percent
+     * @throws InvalidGroupSizeException
      */
-    public function Should_ThrowException_When_InvalidPercentValue($percent)
+    public function Should_ThrowException_When_InvalidPercentValue(float $percent)
     {
         // Assert
         $this->expectException(InvalidPercentValueException::class);
 
         // Act
         $action = new CheapestItemDiscountAction($percent);
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidInEveryGroupOfDataProvider
+     * @param int $value
+     * @throws InvalidGroupSizeException
+     * @throws InvalidPercentValueException
+     */
+    public function Should_ThrowException_When_InvalidInEveryGroupOfValue(int $value)
+    {
+        // Assert
+        $this->expectException(InvalidGroupSizeException::class);
+
+        // Act
+        $action = new CheapestItemDiscountAction(100.00, $value);
     }
 
     /**
@@ -44,12 +62,25 @@ class CheapestItemDiscountActionTest extends TestCase
         $action = new CheapestItemDiscountAction();
 
         // Assert
-        $this->assertEquals(100.00, $action->getPercent());
+        $this->assertEquals(100.00, $action->getPercentDiscount());
+    }
+
+    /**
+     * @test
+     */
+    public function Should_ReturnDefaultInEveryGroupOfValue()
+    {
+        // Act
+        $action = new CheapestItemDiscountAction();
+
+        // Assert
+        $this->assertEquals(0, $action->getInEveryGroupOf());
     }
 
     /**
      * @test
      * @throws InvalidPercentValueException
+     * @throws InvalidGroupSizeException
      */
     public function Should_ReturnCorrectPercentValue()
     {
@@ -57,7 +88,7 @@ class CheapestItemDiscountActionTest extends TestCase
         $action = new CheapestItemDiscountAction(50.00);
 
         // Assert
-        $this->assertEquals(50.00, $action->getPercent());
+        $this->assertEquals(50.00, $action->getPercentDiscount());
     }
 
     /**
@@ -71,6 +102,17 @@ class CheapestItemDiscountActionTest extends TestCase
             [-0.01],
             [101],
             [200]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function invalidInEveryGroupOfDataProvider()
+    {
+        return [
+            [-10],
+            [-1]
         ];
     }
 }

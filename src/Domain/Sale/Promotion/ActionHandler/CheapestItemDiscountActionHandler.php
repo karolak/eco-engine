@@ -38,30 +38,61 @@ class CheapestItemDiscountActionHandler extends ItemsPercentDiscountActionHandle
             return $order;
         }
 
-        $discount = $this->getCheapestItemPrice($order->getItems()) * $action->getPercent() / 100;
+        $cheapestItemsCount = $this->getGroupsCount($order->getTotalProductsQuantity(), $action->getInEveryGroupOf());
+        $cheapestItems = $this->getCheapestItems($order->getItems(), $cheapestItemsCount);
+        $discount = $this->getDiscountSum($cheapestItems, $action->getPercentDiscount());
+
         $percentDiscount = $discount / $order->getTotalProductsPrice() * 100;
 
         return parent::handle(new ItemsPercentDiscountAction($percentDiscount), $promotion, $order);
     }
 
     /**
-     * @param array|Item[] $items
+     * @param int $totalQuantity
+     * @param int $groupSize
      * @return int
      */
-    private function getCheapestItemPrice(array $items): int
+    private function getGroupsCount(int $totalQuantity, int $groupSize): int
     {
-        $lastItem = array_pop($items);
-        $result = $lastItem->getPrice();
-        if (empty($items)) {
-            return $result;
+        if ($groupSize > 1) {
+            return intval(floor($totalQuantity / $groupSize));
         }
 
-        foreach ($items as $item) {
-            if ($item->getPrice() < $result) {
-                $result = $item->getPrice();
-            }
+        if ($groupSize === 1) {
+            return $totalQuantity;
         }
 
-        return $result;
+        return 1;
+    }
+
+    /**
+     * @param array $items
+     * @param int $count
+     * @return array
+     */
+    private function getCheapestItems(array $items, int $count): array
+    {
+        usort($items, function (Item $a, Item $b) {
+            return $a->getPrice() <=> $b->getPrice();
+        });
+
+        return array_slice($items, 0, $count);
+    }
+
+    /**
+     * @param array $items
+     * @param float $singlePercentDiscount
+     * @return float
+     */
+    private function getDiscountSum(array $items, float $singlePercentDiscount): float
+    {
+        return array_sum(
+            array_map(
+                function (Item $item) use ($singlePercentDiscount) {
+                    return $item->getPrice() * $singlePercentDiscount / 100;
+                },
+                $items
+            )
+        );
     }
 }
