@@ -1,6 +1,9 @@
 <?php
 namespace Karolak\EcoEngine\Domain\Sale\Order\ValueObject;
 
+use Karolak\EcoEngine\Domain\Common\Collection\AttributesCollection;
+use Karolak\EcoEngine\Domain\Common\Exception\AttributeNotFoundException;
+use Karolak\EcoEngine\Domain\Common\ValueObject\AttributeInterface;
 use Karolak\EcoEngine\Domain\Common\ValueObject\ValueObjectInterface;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 
@@ -16,19 +19,24 @@ class Product implements ValueObjectInterface
     /** @var int */
     private $price;
 
+    /** @var AttributesCollection */
+    private $attributes;
+
     /**
      * Product constructor.
      * @param string $id
      * @param int $price
+     * @param array $attributes
      * @throws InvalidPriceValueException
      */
-    public function __construct(string $id, int $price)
+    public function __construct(string $id, int $price, array $attributes = [])
     {
         if ($price < 0) {
             throw new InvalidPriceValueException();
         }
         $this->id = $id;
         $this->price = $price;
+        $this->attributes = new AttributesCollection(...$attributes);
     }
 
     /**
@@ -48,6 +56,29 @@ class Product implements ValueObjectInterface
     }
 
     /**
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes->toArray();
+    }
+
+    /**
+     * @param string $name
+     * @return AttributeInterface
+     * @throws AttributeNotFoundException
+     */
+    public function getAttributeByName(string $name): AttributeInterface
+    {
+        $result = $this->attributes->getByName($name);
+        if (empty($result)) {
+            throw new AttributeNotFoundException();
+        }
+
+        return $result;
+    }
+
+    /**
      * @param ValueObjectInterface|Product $object
      * @return bool
      */
@@ -55,7 +86,8 @@ class Product implements ValueObjectInterface
     {
         return $object instanceof Product
             && $this->id == $object->getId()
-            && $this->price == $object->getPrice();
+            && $this->price == $object->getPrice()
+            && $this->attributes->toArray() == $object->getAttributes();
     }
 
     /**

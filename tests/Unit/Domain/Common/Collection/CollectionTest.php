@@ -1,5 +1,5 @@
 <?php
-namespace Karolak\EcoEngine\Test\Unit\Infrastructure\Common\Collection;
+namespace Karolak\EcoEngine\Test\Unit\Domain\Common\Collection;
 
 use ArrayIterator;
 use Karolak\EcoEngine\Domain\Common\Collection\Collection;
@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class CollectionTest.
- * @package Karolak\EcoEngine\Test\Unit\Infrastructure\Common\Collection
+ * @package Karolak\EcoEngine\Test\Unit\Domain\Common\Collection
  */
 class CollectionTest extends TestCase
 {

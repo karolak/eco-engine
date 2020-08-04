@@ -1,12 +1,15 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Order\Entity;
 
+use Karolak\EcoEngine\Domain\Common\Exception\AttributeNotFoundException;
 use Karolak\EcoEngine\Domain\Common\Exception\InvalidEmailException;
 use Karolak\EcoEngine\Domain\Common\ValueObject\Country;
 use Karolak\EcoEngine\Domain\Common\ValueObject\Email;
 use Karolak\EcoEngine\Domain\Common\ValueObject\GeoPoint;
 use Karolak\EcoEngine\Domain\Common\ValueObject\HomeAddress;
+use Karolak\EcoEngine\Domain\Common\ValueObject\NumericAttribute;
 use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
+use Karolak\EcoEngine\Domain\Common\ValueObject\TextAttribute;
 use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\ItemNotFoundException;
@@ -60,7 +63,7 @@ class OrderTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidPriceValueException
+     * @throws InvalidPriceValueException|AttributeNotFoundException
      */
     public function Should_AddOneProduct()
     {
@@ -68,7 +71,12 @@ class OrderTest extends TestCase
         $wasEmptyBefore = $this->obj->isEmpty();
         $totalQuantityBefore = $this->obj->getTotalProductsQuantity();
         $totalPriceBefore = $this->obj->getTotalProductsPrice();
-        $product = new Product('1', 100);
+        $sizeAttribute = new TextAttribute('size', 'M');
+        $totalAttribute = new NumericAttribute('total', 12345);
+        $product = new Product('1', 100, [
+            $sizeAttribute,
+            $totalAttribute
+        ]);
 
         // Act
         $this->obj->addProduct($product);
@@ -76,6 +84,7 @@ class OrderTest extends TestCase
         $isEmptyNow = $this->obj->isEmpty();
         $totalQuantityAfter = $this->obj->getTotalProductsQuantity();
         $totalPriceAfter = $this->obj->getTotalProductsPrice();
+        $item = $this->obj->getItems()[0];
 
         // Assert
         $this->assertTrue($wasEmptyBefore);
@@ -86,6 +95,9 @@ class OrderTest extends TestCase
         $this->assertEquals(100, $totalPriceAfter);
         $this->assertEquals(0, $this->obj->getShipmentPrice());
         $this->assertEquals(100, $this->obj->getTotalPrice());
+        $this->assertTrue($item->getProduct()->equals($product));
+        $this->assertTrue($item->getProduct()->getAttributeByName('size')->equals($sizeAttribute));
+        $this->assertTrue($item->getProduct()->getAttributeByName('total')->equals($totalAttribute));
     }
 
     /**
@@ -203,6 +215,22 @@ class OrderTest extends TestCase
 
         // Act
         $this->obj->addProduct($product);
+    }
+
+    /**
+     * @test
+     * @throws InvalidPriceValueException
+     */
+    public function Should_ThrowException_When_ProductAttributeNotFound()
+    {
+        // Assert
+        $this->expectException(AttributeNotFoundException::class);
+
+        // Arrange
+        $product = new Product('1', 100);
+
+        // Act
+        $product->getAttributeByName('test');
     }
 
     /**
