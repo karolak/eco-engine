@@ -36,9 +36,9 @@ class ItemsPercentDiscountActionHandler implements ActionHandlerInterface
         }
 
         $percentDiscount = $action->getValue() / 100;
-        $totalDiscount = round($order->getTotalProductsPrice() * $percentDiscount);
+        $items = $promotion->getFilter()->filter($order->getItems());
+        $totalDiscount = round($order->getProductsPrice($items) * $percentDiscount);
 
-        $items = $order->getItems();
         $lastItem = array_pop($items);
 
         if (!empty($items)) {

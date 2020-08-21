@@ -36,6 +36,11 @@ class PromotionApplicatorService
             return $order;
         }
 
+        $items = $promotion->getFilter()->filter($order->getItems());
+        if (empty($items)) {
+            return $order;
+        }
+
         $actions = $promotion->getActions();
         if (empty($actions)) {
             $order->addPromotion($promotion);

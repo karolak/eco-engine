@@ -5,6 +5,8 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Collection\ActionsCollection;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ConditionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\EmptyCondition;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\EmptyFilter;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\FilterInterface;
 
 /**
  * Class Promotion
@@ -21,6 +23,9 @@ class Promotion
     /** @var ConditionInterface */
     private $condition;
 
+    /** @var FilterInterface */
+    private $filter;
+
     /** @var ActionsCollection|ActionInterface[] */
     private $actions;
 
@@ -34,6 +39,7 @@ class Promotion
         $this->name = $name;
         $this->type = $type;
         $this->condition = new EmptyCondition();
+        $this->filter = new EmptyFilter();
         $this->actions = new ActionsCollection();
     }
 
@@ -67,6 +73,22 @@ class Promotion
     public function setCondition(ConditionInterface $condition)
     {
         $this->condition = $condition;
+    }
+
+    /**
+     * @return FilterInterface
+     */
+    public function getFilter(): FilterInterface
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @param FilterInterface $filter
+     */
+    public function setFilter(FilterInterface $filter): void
+    {
+        $this->filter = $filter;
     }
 
     /**

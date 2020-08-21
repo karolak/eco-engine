@@ -1,16 +1,16 @@
 <?php
-namespace Karolak\EcoEngine\Domain\Sale\Promotion\Condition;
+namespace Karolak\EcoEngine\Domain\Sale\Promotion\Filter;
 
 use Karolak\EcoEngine\Domain\Common\Comparator\AttributesComparator;
 use Karolak\EcoEngine\Domain\Common\Exception\AttributeNotFoundException;
 use Karolak\EcoEngine\Domain\Common\ValueObject\AttributeInterface;
-use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
+use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Item;
 
 /**
- * Class ProductAttributeCondition
- * @package Karolak\EcoEngine\Domain\Sale\Promotion\Condition
+ * Class ProductAttributeFilter
+ * @package Karolak\EcoEngine\Domain\Sale\Promotion\Filter
  */
-class ProductAttributeCondition implements ConditionInterface
+class ProductAttributeFilter implements FilterInterface
 {
     /** @var AttributeInterface */
     private $attribute;
@@ -19,7 +19,7 @@ class ProductAttributeCondition implements ConditionInterface
     private $strict;
 
     /**
-     * ProductAttributeCondition constructor.
+     * ProductAttributeFilter constructor.
      * @param AttributeInterface $attribute
      * @param bool $strict
      */
@@ -30,18 +30,17 @@ class ProductAttributeCondition implements ConditionInterface
     }
 
     /**
-     * @param Order $order
-     * @return bool
+     * @param array|Item[] $items
+     * @return array|Item[]
      */
-    public function isSatisfiedBy(Order $order): bool
+    public function filter(array $items): array
     {
-        if ($order->isEmpty()) {
-            return false;
+        if (empty($items)) {
+            return $items;
         }
 
         $name = $this->attribute->getName();
-        $items = $order->getItems();
-        $result = false;
+        $result = [];
         foreach ($items as $item) {
             try {
                 $attr = $item->getProduct()->getAttributeByName($name);
@@ -50,8 +49,7 @@ class ProductAttributeCondition implements ConditionInterface
             }
 
             if (AttributesComparator::compare($attr, $this->attribute, $this->strict)) {
-                $result = true;
-                break;
+                $result[] = $item;
             }
         }
 

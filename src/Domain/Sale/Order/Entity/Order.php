@@ -133,15 +133,26 @@ class Order
      */
     public function getTotalProductsPrice(): int
     {
-        if ($this->items->isEmpty()) {
+        return $this->getProductsPrice($this->items->toArray());
+    }
+
+    /**
+     * @param array|Item[] $items
+     * @return int
+     */
+    public function getProductsPrice(array $items): int
+    {
+        if (count($items) === 0) {
             return 0;
         }
 
         return array_sum(
-            array_map(function (Item $item) {
-                return $item->getPrice();
-            },
-            $this->items->toArray())
+            array_map(
+                function (Item $item) {
+                    return $item->getPrice();
+                },
+                $items
+            )
         );
     }
 

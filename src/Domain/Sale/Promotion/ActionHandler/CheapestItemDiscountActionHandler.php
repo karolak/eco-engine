@@ -38,11 +38,12 @@ class CheapestItemDiscountActionHandler extends ItemsPercentDiscountActionHandle
             return $order;
         }
 
-        $cheapestItemsCount = $this->getGroupsCount($order->getTotalProductsQuantity(), $action->getInEveryGroupOf());
-        $cheapestItems = $this->getCheapestItems($order->getItems(), $cheapestItemsCount);
+        $items = $promotion->getFilter()->filter($order->getItems());
+        $cheapestItemsCount = $this->getGroupsCount(count($items), $action->getInEveryGroupOf());
+        $cheapestItems = $this->getCheapestItems($items, $cheapestItemsCount);
         $discount = $this->getDiscountSum($cheapestItems, $action->getPercentDiscount());
 
-        $percentDiscount = $discount / $order->getTotalProductsPrice() * 100;
+        $percentDiscount = $discount / $order->getProductsPrice($items) * 100;
 
         return parent::handle(new ItemsPercentDiscountAction($percentDiscount), $promotion, $order);
     }

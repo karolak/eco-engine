@@ -37,7 +37,8 @@ class ItemsFixedDiscountActionHandler extends ItemsPercentDiscountActionHandler 
             return $order;
         }
 
-        $percentDiscount = $this->getPercentDiscount($action->getValue(), $order->getTotalProductsPrice());
+        $items = $promotion->getFilter()->filter($order->getItems());
+        $percentDiscount = $this->getPercentDiscount($action->getValue(), $order->getProductsPrice($items));
 
         return parent::handle(new ItemsPercentDiscountAction($percentDiscount), $promotion, $order);
     }
