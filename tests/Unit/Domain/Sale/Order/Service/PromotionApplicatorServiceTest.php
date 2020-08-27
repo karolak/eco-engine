@@ -16,7 +16,7 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\ActionHandlerAlreadyRegisteredException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\ActionHandlerNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\ProductAttributeFilter;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\TextAttributeFilter;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Registry\ActionRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -117,7 +117,7 @@ class PromotionApplicatorServiceTest extends TestCase
         // Arrange
         $order = new Order();
         $order->addProduct(new Product('1', 500));
-        $filter = new ProductAttributeFilter(new TextAttribute('text', 'text'));
+        $filter = new TextAttributeFilter(new TextAttribute('text', 'text'));
         $promotion = new Promotion('TEST', 'coupon');
         $promotion->addAction(new ItemsPercentDiscountAction(50.00));
         $promotion->setFilter($filter);

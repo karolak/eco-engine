@@ -7,7 +7,7 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\EmptyCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\MinimumItemsQuantityCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\EmptyFilter;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\ProductAttributeFilter;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\TextAttributeFilter;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -101,14 +101,14 @@ class PromotionTest extends TestCase
     public function Should_SetFilter()
     {
         // Arrange
-        $filter = new ProductAttributeFilter(new TextAttribute('test', 'test'));
+        $filter = new TextAttributeFilter(new TextAttribute('test', 'test'));
 
         // Act
         $this->obj->setFilter($filter);
         $filter = $this->obj->getFilter();
 
         // Assert
-        $this->assertInstanceOf(ProductAttributeFilter::class, $filter);
+        $this->assertInstanceOf(TextAttributeFilter::class, $filter);
     }
 
     /**
