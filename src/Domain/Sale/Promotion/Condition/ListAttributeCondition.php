@@ -1,16 +1,16 @@
 <?php
-namespace Karolak\EcoEngine\Domain\Sale\Promotion\Filter;
+namespace Karolak\EcoEngine\Domain\Sale\Promotion\Condition;
 
 use Karolak\EcoEngine\Domain\Common\Comparator\ListAttributesComparator;
 use Karolak\EcoEngine\Domain\Common\Exception\AttributeNotFoundException;
 use Karolak\EcoEngine\Domain\Common\ValueObject\ListAttribute;
-use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Item;
+use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 
 /**
- * Class ListAttributeFilter
- * @package Karolak\EcoEngine\Domain\Sale\Promotion\Filter
+ * Class ListAttributeCondition
+ * @package Karolak\EcoEngine\Domain\Sale\Promotion\Condition
  */
-class ListAttributeFilter implements FilterInterface
+class ListAttributeCondition implements ConditionInterface
 {
     /** @var ListAttribute */
     private $attribute;
@@ -19,7 +19,7 @@ class ListAttributeFilter implements FilterInterface
     private $comparison;
 
     /**
-     * ListAttributeFilter constructor.
+     * ListAttributeCondition constructor.
      * @param ListAttribute $attribute
      * @param string $comparison
      */
@@ -30,17 +30,18 @@ class ListAttributeFilter implements FilterInterface
     }
 
     /**
-     * @param array|Item[] $items
-     * @return array|Item[]
+     * @param Order $order
+     * @return bool
      */
-    public function filter(array $items): array
+    public function isSatisfiedBy(Order $order): bool
     {
-        if (empty($items)) {
-            return $items;
+        if ($order->isEmpty()) {
+            return false;
         }
 
-        $result = [];
         $name = $this->attribute->getName();
+        $items = $order->getItems();
+        $result = false;
         foreach ($items as $item) {
             try {
                 $attr = $item->getProduct()->getAttributeByName($name);
@@ -53,7 +54,8 @@ class ListAttributeFilter implements FilterInterface
             }
 
             if (ListAttributesComparator::compare($attr, $this->comparison, $this->attribute)) {
-                $result[] = $item;
+                $result = true;
+                break;
             }
         }
 

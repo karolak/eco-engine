@@ -1,16 +1,16 @@
 <?php
-namespace Karolak\EcoEngine\Domain\Sale\Promotion\Filter;
+namespace Karolak\EcoEngine\Domain\Sale\Promotion\Condition;
 
 use Karolak\EcoEngine\Domain\Common\Comparator\TextAttributesComparator;
 use Karolak\EcoEngine\Domain\Common\Exception\AttributeNotFoundException;
 use Karolak\EcoEngine\Domain\Common\ValueObject\TextAttribute;
-use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Item;
+use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 
 /**
- * Class TextAttributeFilter
- * @package Karolak\EcoEngine\Domain\Sale\Promotion\Filter
+ * Class TextAttributeCondition
+ * @package Karolak\EcoEngine\Domain\Sale\Promotion\Condition
  */
-class TextAttributeFilter implements FilterInterface
+class TextAttributeCondition implements ConditionInterface
 {
     /** @var TextAttribute */
     private $attribute;
@@ -19,7 +19,7 @@ class TextAttributeFilter implements FilterInterface
     private $comparison;
 
     /**
-     * TextAttributeFilter constructor.
+     * TextAttributeCondition constructor.
      * @param TextAttribute $attribute
      * @param string $comparison
      */
@@ -29,19 +29,19 @@ class TextAttributeFilter implements FilterInterface
         $this->comparison = $comparison;
     }
 
-
     /**
-     * @param array|Item[] $items
-     * @return array|Item[]
+     * @param Order $order
+     * @return bool
      */
-    public function filter(array $items): array
+    public function isSatisfiedBy(Order $order): bool
     {
-        if (empty($items)) {
-            return $items;
+        if ($order->isEmpty()) {
+            return false;
         }
 
-        $result = [];
         $name = $this->attribute->getName();
+        $items = $order->getItems();
+        $result = false;
         foreach ($items as $item) {
             try {
                 $attr = $item->getProduct()->getAttributeByName($name);
@@ -54,7 +54,8 @@ class TextAttributeFilter implements FilterInterface
             }
 
             if (TextAttributesComparator::compare($attr, $this->comparison, $this->attribute)) {
-                $result[] = $item;
+                $result = true;
+                break;
             }
         }
 

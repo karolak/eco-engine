@@ -1,6 +1,7 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Filter;
 
+use Karolak\EcoEngine\Domain\Common\Comparator\NumericAttributesComparator;
 use Karolak\EcoEngine\Domain\Common\ValueObject\ListAttribute;
 use Karolak\EcoEngine\Domain\Common\ValueObject\NumericAttribute;
 use Karolak\EcoEngine\Domain\Common\ValueObject\TextAttribute;
@@ -8,6 +9,7 @@ use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\NumericAttributeFilter;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\TextAttributeFilter;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,8 +26,8 @@ class NumericAttributeFilterTest extends TestCase
     {
         // Arrange
         $items = $this->getOrderItemsWithDifferentProductAttributes();
-        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributeFilter::EQUALS);
-        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 1234), NumericAttributeFilter::EQUALS);
+        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributesComparator::EQUALS);
+        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 1234), NumericAttributesComparator::EQUALS);
 
         // Act
         $result1 = $filter1->filter($items);
@@ -44,9 +46,9 @@ class NumericAttributeFilterTest extends TestCase
     {
         // Arrange
         $items = $this->getOrderItemsWithDifferentProductAttributes();
-        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributeFilter::EQUALS_OR_HIGHER);
-        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12), NumericAttributeFilter::EQUALS_OR_HIGHER);
-        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributeFilter::EQUALS_OR_HIGHER);
+        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributesComparator::EQUALS_OR_HIGHER);
+        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12), NumericAttributesComparator::EQUALS_OR_HIGHER);
+        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributesComparator::EQUALS_OR_HIGHER);
 
         // Act
         $result1 = $filter1->filter($items);
@@ -67,9 +69,9 @@ class NumericAttributeFilterTest extends TestCase
     {
         // Arrange
         $items = $this->getOrderItemsWithDifferentProductAttributes();
-        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributeFilter::EQUALS_OR_LOWER);
-        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributeFilter::EQUALS_OR_LOWER);
-        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12344), NumericAttributeFilter::EQUALS_OR_LOWER);
+        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributesComparator::EQUALS_OR_LOWER);
+        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributesComparator::EQUALS_OR_LOWER);
+        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12344), NumericAttributesComparator::EQUALS_OR_LOWER);
 
         // Act
         $result1 = $filter1->filter($items);
@@ -90,9 +92,9 @@ class NumericAttributeFilterTest extends TestCase
     {
         // Arrange
         $items = $this->getOrderItemsWithDifferentProductAttributes();
-        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributeFilter::HIGHER);
-        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12344), NumericAttributeFilter::HIGHER);
-        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributeFilter::HIGHER);
+        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributesComparator::HIGHER);
+        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12344), NumericAttributesComparator::HIGHER);
+        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributesComparator::HIGHER);
 
         // Act
         $result1 = $filter1->filter($items);
@@ -113,9 +115,9 @@ class NumericAttributeFilterTest extends TestCase
     {
         // Arrange
         $items = $this->getOrderItemsWithDifferentProductAttributes();
-        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributeFilter::LOWER);
-        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributeFilter::LOWER);
-        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12344), NumericAttributeFilter::LOWER);
+        $filter1 = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributesComparator::LOWER);
+        $filter2 = new NumericAttributeFilter(new NumericAttribute('total', 12346), NumericAttributesComparator::LOWER);
+        $filter3 = new NumericAttributeFilter(new NumericAttribute('total', 12344), NumericAttributesComparator::LOWER);
 
         // Act
         $result1 = $filter1->filter($items);
@@ -134,10 +136,26 @@ class NumericAttributeFilterTest extends TestCase
     public function Should_ReturnNoItems_When_EmptyItems()
     {
         // Arrange
-        $filter = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributeFilter::LOWER);
+        $filter = new NumericAttributeFilter(new NumericAttribute('total', 12345), NumericAttributesComparator::LOWER);
 
         // Act
         $result = $filter->filter([]);
+
+        // Assert
+        $this->assertCount(0, $result);
+    }
+
+    /**
+     * @test
+     */
+    public function Should_ReturnNoItems_When_CompareDifferentTypeOfAttributeWithSameName()
+    {
+        // Arrange
+        $items = $this->getOrderItemsWithDifferentProductAttributes();
+        $filter = new TextAttributeFilter(new TextAttribute('total', '12345'));
+
+        // Act
+        $result = $filter->filter($items);
 
         // Assert
         $this->assertCount(0, $result);

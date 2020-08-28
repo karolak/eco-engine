@@ -1,32 +1,32 @@
 <?php
 namespace Karolak\EcoEngine\Domain\Sale\Promotion\Condition;
 
-use Karolak\EcoEngine\Domain\Common\Comparator\AttributesComparator;
+use Karolak\EcoEngine\Domain\Common\Comparator\NumericAttributesComparator;
 use Karolak\EcoEngine\Domain\Common\Exception\AttributeNotFoundException;
-use Karolak\EcoEngine\Domain\Common\ValueObject\AttributeInterface;
+use Karolak\EcoEngine\Domain\Common\ValueObject\NumericAttribute;
 use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 
 /**
- * Class ProductAttributeCondition
+ * Class NumericAttributeCondition
  * @package Karolak\EcoEngine\Domain\Sale\Promotion\Condition
  */
-class ProductAttributeCondition implements ConditionInterface
+class NumericAttributeCondition implements ConditionInterface
 {
-    /** @var AttributeInterface */
+    /** @var NumericAttribute */
     private $attribute;
 
-    /** @var bool */
-    private $strict;
+    /** @var string */
+    private $comparison;
 
     /**
-     * ProductAttributeCondition constructor.
-     * @param AttributeInterface $attribute
-     * @param bool $strict
+     * NumericAttributeCondition constructor.
+     * @param NumericAttribute $attribute
+     * @param string $comparison
      */
-    public function __construct(AttributeInterface $attribute, bool $strict = true)
+    public function __construct(NumericAttribute $attribute, string $comparison = NumericAttributesComparator::EQUALS)
     {
         $this->attribute = $attribute;
-        $this->strict = $strict;
+        $this->comparison = $comparison;
     }
 
     /**
@@ -49,7 +49,11 @@ class ProductAttributeCondition implements ConditionInterface
                 continue;
             }
 
-            if (AttributesComparator::compare($attr, $this->attribute, $this->strict)) {
+            if (!($attr instanceof NumericAttribute)) {
+                continue;
+            }
+
+            if (NumericAttributesComparator::compare($attr, $this->comparison, $this->attribute)) {
                 $result = true;
                 break;
             }

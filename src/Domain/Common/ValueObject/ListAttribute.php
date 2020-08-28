@@ -21,6 +21,7 @@ class ListAttribute implements AttributeInterface
     public function __construct(string $name, array $value)
     {
         $this->name = $name;
+        sort($value);
         $this->value = $value;
     }
 

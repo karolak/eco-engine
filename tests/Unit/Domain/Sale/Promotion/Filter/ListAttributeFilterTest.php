@@ -1,6 +1,7 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Filter;
 
+use Karolak\EcoEngine\Domain\Common\Comparator\ListAttributesComparator;
 use Karolak\EcoEngine\Domain\Common\ValueObject\ListAttribute;
 use Karolak\EcoEngine\Domain\Common\ValueObject\NumericAttribute;
 use Karolak\EcoEngine\Domain\Common\ValueObject\TextAttribute;
@@ -8,6 +9,7 @@ use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\ListAttributeFilter;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\NumericAttributeFilter;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,10 +26,10 @@ class ListAttributeFilterTest extends TestCase
     {
         // Arrange
         $items = $this->getOrderItemsWithDifferentProductAttributes();
-        $filter1 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5]), ListAttributeFilter::STRICT);
-        $filter2 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 5, 4, 3]), ListAttributeFilter::STRICT);
-        $filter3 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 4, 5]), ListAttributeFilter::STRICT);
-        $filter4 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5, 6]), ListAttributeFilter::STRICT);
+        $filter1 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5]), ListAttributesComparator::STRICT);
+        $filter2 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 5, 4, 3]), ListAttributesComparator::STRICT);
+        $filter3 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 4, 5]), ListAttributesComparator::STRICT);
+        $filter4 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5, 6]), ListAttributesComparator::STRICT);
 
         // Act
         $result1 = $filter1->filter($items);
@@ -50,11 +52,11 @@ class ListAttributeFilterTest extends TestCase
     {
         // Arrange
         $items = $this->getOrderItemsWithDifferentProductAttributes();
-        $filter1 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5]), ListAttributeFilter::IN);
-        $filter2 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 5, 4, 3]), ListAttributeFilter::IN);
-        $filter3 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 4, 5]), ListAttributeFilter::IN);
-        $filter4 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5, 6]), ListAttributeFilter::IN);
-        $filter5 = new ListAttributeFilter(new ListAttribute('categories', [6, 7, 8]), ListAttributeFilter::IN);
+        $filter1 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5]), ListAttributesComparator::IN);
+        $filter2 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 5, 4, 3]), ListAttributesComparator::IN);
+        $filter3 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 4, 5]), ListAttributesComparator::IN);
+        $filter4 = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5, 6]), ListAttributesComparator::IN);
+        $filter5 = new ListAttributeFilter(new ListAttribute('categories', [6, 7, 8]), ListAttributesComparator::IN);
 
         // Act
         $result1 = $filter1->filter($items);
@@ -74,10 +76,26 @@ class ListAttributeFilterTest extends TestCase
     /**
      * @test
      */
+    public function Should_ReturnNoItems_When_CompareDifferentTypeOfAttributeWithSameName()
+    {
+        // Arrange
+        $items = $this->getOrderItemsWithDifferentProductAttributes();
+        $filter = new NumericAttributeFilter(new NumericAttribute('categories', 12345));
+
+        // Act
+        $result = $filter->filter($items);
+
+        // Assert
+        $this->assertCount(0, $result);
+    }
+
+    /**
+     * @test
+     */
     public function Should_ReturnNoItems_When_EmptyItems()
     {
         // Arrange
-        $filter = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5]), ListAttributeFilter::IN);
+        $filter = new ListAttributeFilter(new ListAttribute('categories', [1, 2, 3, 4, 5]), ListAttributesComparator::IN);
 
         // Act
         $result = $filter->filter([]);
