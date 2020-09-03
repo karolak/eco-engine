@@ -5,10 +5,10 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidGroupSizeException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
 
 /**
- * Class CheapestItemDiscountAction
+ * Class CheapestItemPercentDiscountAction
  * @package Karolak\EcoEngine\Domain\Sale\Promotion\Action
  */
-class CheapestItemDiscountAction implements ActionInterface
+class CheapestItemPercentDiscountAction implements ActionInterface
 {
     /** @var float */
     private $percentDiscount;
@@ -17,7 +17,7 @@ class CheapestItemDiscountAction implements ActionInterface
     private $inEveryGroupOf;
 
     /**
-     * CheapestItemDiscountAction constructor.
+     * CheapestItemPercentDiscountAction constructor.
      * @param float $percentDiscount
      * @param int $inEveryGroupOf
      * @throws InvalidPercentValueException

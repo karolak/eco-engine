@@ -6,17 +6,17 @@ use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\ItemNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Item;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsPercentDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidActionException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
 
 /**
- * Class CheapestItemDiscountAction
+ * Class CheapestItemFixedDiscountActionHandler
  * @package Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler
  */
-class CheapestItemDiscountActionHandler extends ItemsPercentDiscountActionHandler implements ActionHandlerInterface
+class CheapestItemFixedDiscountActionHandler extends ItemsPercentDiscountActionHandler implements ActionHandlerInterface
 {
     /**
      * @param ActionInterface $action
@@ -30,7 +30,7 @@ class CheapestItemDiscountActionHandler extends ItemsPercentDiscountActionHandle
      */
     public function handle(ActionInterface $action, Promotion $promotion, Order $order): Order
     {
-        if (!($action instanceof CheapestItemDiscountAction)) {
+        if (!($action instanceof CheapestItemFixedDiscountAction)) {
             throw new InvalidActionException();
         }
 
@@ -41,7 +41,7 @@ class CheapestItemDiscountActionHandler extends ItemsPercentDiscountActionHandle
         $items = $promotion->getFilter()->filter($order->getItems());
         $cheapestItemsCount = $this->getGroupsCount(count($items), $action->getInEveryGroupOf());
         $cheapestItems = $this->getCheapestItems($items, $cheapestItemsCount);
-        $discount = $this->getDiscountSum($cheapestItems, $action->getPercentDiscount());
+        $discount = $this->getDiscountSum($cheapestItems, $action->getFixedDiscount());
 
         $percentDiscount = $discount / $order->getProductsPrice($items) * 100;
 
@@ -82,15 +82,15 @@ class CheapestItemDiscountActionHandler extends ItemsPercentDiscountActionHandle
 
     /**
      * @param array $items
-     * @param float $singlePercentDiscount
-     * @return float
+     * @param int $singleFixedDiscount
+     * @return int
      */
-    private function getDiscountSum(array $items, float $singlePercentDiscount): float
+    private function getDiscountSum(array $items, int $singleFixedDiscount): int
     {
         return array_sum(
             array_map(
-                function (Item $item) use ($singlePercentDiscount) {
-                    return $item->getPrice() * $singlePercentDiscount / 100;
+                function (Item $item) use ($singleFixedDiscount) {
+                    return ($item->getPrice() < $singleFixedDiscount) ? $item->getPrice() : $singleFixedDiscount;
                 },
                 $items
             )

@@ -6,7 +6,7 @@ use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\Service\PromotionApplicatorService;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemPercentDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsPercentDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ItemsFixedDiscountActionHandler;
@@ -144,7 +144,7 @@ class PromotionApplicatorServiceTest extends TestCase
         $order = new Order();
         $order->addProduct(new Product('1', 500));
         $promotion = new Promotion('TEST', 'coupon');
-        $promotion->addAction(new CheapestItemDiscountAction());
+        $promotion->addAction(new CheapestItemPercentDiscountAction());
 
         // Act
         $this->obj->apply($order, $promotion);

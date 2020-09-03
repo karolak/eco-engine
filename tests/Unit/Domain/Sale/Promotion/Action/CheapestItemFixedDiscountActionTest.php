@@ -1,40 +1,44 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Action;
 
+use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidGroupSizeException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class CheapestItemDiscountActionTest
+ * Class CheapestItemFixedDiscountActionTest
  * @package Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Action
  */
-class CheapestItemDiscountActionTest extends TestCase
+class CheapestItemFixedDiscountActionTest extends TestCase
 {
     /**
      * @test
+     * @throws InvalidPriceValueException
+     * @throws InvalidGroupSizeException
      */
     public function Should_ImplementActionInterface()
     {
         // Assert
-        $this->assertInstanceOf(ActionInterface::class, new CheapestItemDiscountAction());
+        $this->assertInstanceOf(ActionInterface::class, new CheapestItemFixedDiscountAction(100));
     }
 
     /**
      * @test
-     * @dataProvider invalidPercentDataProvider
-     * @param float $percent
+     * @dataProvider invalidPriceValueDataProvider
+     * @param int $value
      * @throws InvalidGroupSizeException
+     * @throws InvalidPriceValueException
      */
-    public function Should_ThrowException_When_InvalidPercentValue(float $percent)
+    public function Should_ThrowException_When_InvalidPriceValue(int $value)
     {
         // Assert
-        $this->expectException(InvalidPercentValueException::class);
+        $this->expectException(InvalidPriceValueException::class);
 
         // Act
-        $action = new CheapestItemDiscountAction($percent);
+        $action = new CheapestItemFixedDiscountAction($value);
     }
 
     /**
@@ -42,7 +46,7 @@ class CheapestItemDiscountActionTest extends TestCase
      * @dataProvider invalidInEveryGroupOfDataProvider
      * @param int $value
      * @throws InvalidGroupSizeException
-     * @throws InvalidPercentValueException
+     * @throws InvalidPriceValueException
      */
     public function Should_ThrowException_When_InvalidInEveryGroupOfValue(int $value)
     {
@@ -50,28 +54,18 @@ class CheapestItemDiscountActionTest extends TestCase
         $this->expectException(InvalidGroupSizeException::class);
 
         // Act
-        $action = new CheapestItemDiscountAction(100.00, $value);
+        $action = new CheapestItemFixedDiscountAction(100, $value);
     }
 
     /**
      * @test
-     */
-    public function Should_ReturnDefaultPercentValue()
-    {
-        // Act
-        $action = new CheapestItemDiscountAction();
-
-        // Assert
-        $this->assertEquals(100.00, $action->getPercentDiscount());
-    }
-
-    /**
-     * @test
+     * @throws InvalidGroupSizeException
+     * @throws InvalidPriceValueException
      */
     public function Should_ReturnDefaultInEveryGroupOfValue()
     {
         // Act
-        $action = new CheapestItemDiscountAction();
+        $action = new CheapestItemFixedDiscountAction(100);
 
         // Assert
         $this->assertEquals(0, $action->getInEveryGroupOf());
@@ -79,29 +73,26 @@ class CheapestItemDiscountActionTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidPercentValueException
      * @throws InvalidGroupSizeException
+     * @throws InvalidPriceValueException
      */
-    public function Should_ReturnCorrectPercentValue()
+    public function Should_ReturnCorrectFixedValue()
     {
         // Act
-        $action = new CheapestItemDiscountAction(50.00);
+        $action = new CheapestItemFixedDiscountAction(50);
 
         // Assert
-        $this->assertEquals(50.00, $action->getPercentDiscount());
+        $this->assertEquals(50, $action->getFixedDiscount());
     }
 
     /**
      * @return array
      */
-    public function invalidPercentDataProvider()
+    public function invalidPriceValueDataProvider()
     {
         return [
             [-10],
-            [-1],
-            [-0.01],
-            [101],
-            [200]
+            [-1]
         ];
     }
 

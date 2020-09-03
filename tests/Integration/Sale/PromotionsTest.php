@@ -10,10 +10,12 @@ use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\Service\PromotionApplicatorService;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemPercentDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsPercentDiscountAction;
-use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemDiscountActionHandler;
+use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemFixedDiscountActionHandler;
+use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemPercentDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ItemsFixedDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ItemsPercentDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\AndCondition;
@@ -52,7 +54,8 @@ class PromotionsTest extends TestCase
         $actionRegistry = new ActionRegistry();
         $actionRegistry->set(ItemsPercentDiscountAction::class, new ItemsPercentDiscountActionHandler());
         $actionRegistry->set(ItemsFixedDiscountAction::class, new ItemsFixedDiscountActionHandler());
-        $actionRegistry->set(CheapestItemDiscountAction::class, new CheapestItemDiscountActionHandler());
+        $actionRegistry->set(CheapestItemPercentDiscountAction::class, new CheapestItemPercentDiscountActionHandler());
+        $actionRegistry->set(CheapestItemFixedDiscountAction::class, new CheapestItemFixedDiscountActionHandler());
 
         $this->promotionApplicator = new PromotionApplicatorService($actionRegistry);
     }
@@ -223,7 +226,7 @@ class PromotionsTest extends TestCase
                     new Product('2', 10000)
                 ],
                 // promotion actions
-                [ new CheapestItemDiscountAction(100) ],
+                [ new CheapestItemPercentDiscountAction(100) ],
                 // promotion conditions
                 new MinimumItemsQuantityCondition(2),
                 // promotion filters
@@ -238,7 +241,22 @@ class PromotionsTest extends TestCase
                     new Product('2', 10000)
                 ],
                 // promotion actions
-                [ new CheapestItemDiscountAction(100) ],
+                [ new CheapestItemFixedDiscountAction(5000) ],
+                // promotion conditions
+                new MinimumItemsQuantityCondition(2),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 15000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 20000),
+                    new Product('2', 10000)
+                ],
+                // promotion actions
+                [ new CheapestItemPercentDiscountAction(100) ],
                 // promotion conditions
                 new MinimumItemsQuantityCondition(3),
                 // promotion filters
@@ -255,7 +273,7 @@ class PromotionsTest extends TestCase
                     new Product('4', 40000),
                 ],
                 // promotion actions
-                [ new CheapestItemDiscountAction(100, 2) ],
+                [ new CheapestItemPercentDiscountAction(100, 2) ],
                 // promotion conditions
                 new MinimumItemsQuantityCondition(2),
                 // promotion filters
@@ -272,7 +290,7 @@ class PromotionsTest extends TestCase
                     new Product('4', 40000),
                 ],
                 // promotion actions
-                [ new CheapestItemDiscountAction(50, 2) ],
+                [ new CheapestItemPercentDiscountAction(50, 2) ],
                 // promotion conditions
                 new MinimumItemsQuantityCondition(2),
                 // promotion filters
@@ -289,7 +307,24 @@ class PromotionsTest extends TestCase
                     new Product('4', 40000),
                 ],
                 // promotion actions
-                [ new CheapestItemDiscountAction(50, 3) ],
+                [ new CheapestItemFixedDiscountAction(5000, 2) ],
+                // promotion conditions
+                new MinimumItemsQuantityCondition(2),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 80000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                    new Product('4', 40000),
+                ],
+                // promotion actions
+                [ new CheapestItemPercentDiscountAction(50, 3) ],
                 // promotion conditions
                 new MinimumItemsQuantityCondition(3),
                 // promotion filters
