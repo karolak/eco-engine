@@ -14,10 +14,12 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountActi
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemPercentDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsPercentDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\PromotionProductsAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemFixedDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemPercentDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ItemsFixedDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ItemsPercentDiscountActionHandler;
+use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\PromotionProductsActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\AndCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ConditionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\EmptyCondition;
@@ -27,12 +29,15 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\ActionHandlerAlreadyRegisteredException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\ActionHandlerNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidGroupSizeException;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidLimitException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\PromotionProductAlreadyAddedException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\EmptyFilter;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\FilterInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\ListAttributeFilter;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\NumericAttributeFilter;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Registry\ActionRegistry;
+use Karolak\EcoEngine\Domain\Sale\Promotion\ValueObject\PromotionProduct;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -56,6 +61,7 @@ class PromotionsTest extends TestCase
         $actionRegistry->set(ItemsFixedDiscountAction::class, new ItemsFixedDiscountActionHandler());
         $actionRegistry->set(CheapestItemPercentDiscountAction::class, new CheapestItemPercentDiscountActionHandler());
         $actionRegistry->set(CheapestItemFixedDiscountAction::class, new CheapestItemFixedDiscountActionHandler());
+        $actionRegistry->set(PromotionProductsAction::class, new PromotionProductsActionHandler());
 
         $this->promotionApplicator = new PromotionApplicatorService($actionRegistry);
     }
@@ -110,9 +116,11 @@ class PromotionsTest extends TestCase
 
     /**
      * @return array
-     * @throws InvalidPriceValueException
-     * @throws InvalidPercentValueException
      * @throws InvalidGroupSizeException
+     * @throws InvalidPercentValueException
+     * @throws InvalidPriceValueException
+     * @throws InvalidLimitException
+     * @throws PromotionProductAlreadyAddedException
      */
     public function provider()
     {
@@ -247,7 +255,7 @@ class PromotionsTest extends TestCase
                 // promotion filters
                 null,
                 // results
-                ['totalPrice' => 15000],
+                ['totalPrice' => 25000],
             ],
             [
                 // products
@@ -313,7 +321,7 @@ class PromotionsTest extends TestCase
                 // promotion filters
                 null,
                 // results
-                ['totalPrice' => 80000],
+                ['totalPrice' => 90000],
             ],
             [
                 // products
@@ -348,6 +356,28 @@ class PromotionsTest extends TestCase
                 new ListAttributeFilter(new ListAttribute('categories', [1, 5]), ListAttributesComparator::IN),
                 // results
                 ['totalPrice' => 95000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                    new Product('4', 40000),
+                ],
+                // promotion actions
+                [ new PromotionProductsAction(
+                    [
+                        new PromotionProduct('5', 1000),
+                        new PromotionProduct('1', 1000),
+                    ], 1)
+                ],
+                // promotion conditions
+                new MinimumItemsQuantityCondition(2),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 91000],
             ],
         ];
     }

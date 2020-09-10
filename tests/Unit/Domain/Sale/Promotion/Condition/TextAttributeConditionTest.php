@@ -9,7 +9,6 @@ use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ListAttributeCondition;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\NumericAttributeCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\TextAttributeCondition;
 use PHPUnit\Framework\TestCase;
 

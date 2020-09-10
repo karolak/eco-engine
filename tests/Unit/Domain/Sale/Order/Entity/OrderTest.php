@@ -1,6 +1,7 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Order\Entity;
 
+use DateTimeImmutable;
 use Karolak\EcoEngine\Domain\Common\Exception\AttributeNotFoundException;
 use Karolak\EcoEngine\Domain\Common\Exception\InvalidEmailException;
 use Karolak\EcoEngine\Domain\Common\ValueObject\Country;
@@ -615,6 +616,21 @@ class OrderTest extends TestCase
 
         // Assert
         $this->assertTrue($invoice->equals($this->obj->getInvoice()));
+    }
+
+    /**
+     * @test
+     */
+    public function Should_SetCreated()
+    {
+        // Arrange
+        $date = new DateTimeImmutable();
+
+        // Act
+        $this->obj->setCreated($date);
+
+        // Assert
+        $this->assertEquals($date, $this->obj->getCreated());
     }
 
     /**

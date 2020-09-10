@@ -1,6 +1,7 @@
 <?php
 namespace Karolak\EcoEngine\Domain\Sale\Order\Entity;
 
+use DateTimeImmutable;
 use Karolak\EcoEngine\Domain\Sale\Order\Collection\AdjustmentsCollection;
 use Karolak\EcoEngine\Domain\Sale\Order\Collection\ItemsCollection;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
@@ -39,6 +40,9 @@ class Order
     /** @var Payment|null */
     private $payment;
 
+    /** @var DateTimeImmutable */
+    private $created;
+
     /**
      * Order constructor.
      */
@@ -50,6 +54,7 @@ class Order
         $this->invoice = null;
         $this->shipment = null;
         $this->payment = null;
+        $this->created = new DateTimeImmutable();
     }
 
     /**
@@ -246,6 +251,22 @@ class Order
     public function getPayment(): ?Payment
     {
         return $this->payment;
+    }
+
+    /**
+     * @return DateTimeImmutable
+     */
+    public function getCreated(): DateTimeImmutable
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param DateTimeImmutable $created
+     */
+    public function setCreated(DateTimeImmutable $created): void
+    {
+        $this->created = $created;
     }
 
     /**

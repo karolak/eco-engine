@@ -68,7 +68,9 @@ class Item implements ValueObjectInterface
     public function equals(ValueObjectInterface $object): bool
     {
         return $object instanceof Item
-            && $this->getProduct()->equals($object->getProduct());
+            && $this->getProduct()->equals($object->getProduct())
+            && $this->getPrice() === $object->getPrice()
+            && $this->getAdjustments() == $object->getAdjustments();
     }
 
     /**
