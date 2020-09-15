@@ -5,7 +5,6 @@ use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidGroupSizeException;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
 use PHPUnit\Framework\TestCase;
 
 /**

@@ -48,12 +48,19 @@ class PromotionApplicatorService
             return $order;
         }
 
+        $addPromotion = false;
         foreach ($actions as $action) {
+            if (!$action->getCondition()->isSatisfiedBy($order)) {
+                continue;
+            }
             $handler = $this->actionRegistry->get(get_class($action));
             $order = $handler->handle($action, $promotion, $order);
+            $addPromotion = true;
         }
 
-        $order->addPromotion($promotion);
+        if ($addPromotion) {
+            $order->addPromotion($promotion);
+        }
 
         return $order;
     }

@@ -23,7 +23,7 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\PromotionProductsActio
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\AndCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ConditionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\EmptyCondition;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\MinimumItemsQuantityCondition;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ItemsQuantityCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\NumericAttributeCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\ActionHandlerAlreadyRegisteredException;
@@ -155,7 +155,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new ItemsFixedDiscountAction(10000) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -167,7 +167,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new ItemsFixedDiscountAction(10000) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -183,7 +183,7 @@ class PromotionsTest extends TestCase
                 [ new ItemsFixedDiscountAction(10000) ],
                 // promotion conditions
                 new AndCondition(
-                    new MinimumItemsQuantityCondition(2),
+                    new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                     new NumericAttributeCondition(new NumericAttribute('total', 150), NumericAttributesComparator::HIGHER)
                 ),
                 // promotion filters
@@ -201,7 +201,7 @@ class PromotionsTest extends TestCase
                 [ new ItemsPercentDiscountAction(10) ],
                 // promotion conditions
                 new AndCondition(
-                    new MinimumItemsQuantityCondition(2),
+                    new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                     new NumericAttributeCondition(new NumericAttribute('total', 150), NumericAttributesComparator::HIGHER)
                 ),
                 // promotion filters
@@ -219,7 +219,7 @@ class PromotionsTest extends TestCase
                 [ new ItemsPercentDiscountAction(10) ],
                 // promotion conditions
                 new AndCondition(
-                    new MinimumItemsQuantityCondition(2),
+                    new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                     new NumericAttributeCondition(new NumericAttribute('total', 150), NumericAttributesComparator::HIGHER)
                 ),
                 // promotion filters
@@ -236,7 +236,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new CheapestItemPercentDiscountAction(100) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -251,7 +251,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new CheapestItemFixedDiscountAction(5000) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -266,7 +266,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new CheapestItemPercentDiscountAction(100) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(3),
+                new ItemsQuantityCondition(3, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -283,7 +283,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new CheapestItemPercentDiscountAction(100, 2) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -300,7 +300,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new CheapestItemPercentDiscountAction(50, 2) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -317,7 +317,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new CheapestItemFixedDiscountAction(5000, 2) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -334,7 +334,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new CheapestItemPercentDiscountAction(50, 3) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(3),
+                new ItemsQuantityCondition(3, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
@@ -351,7 +351,7 @@ class PromotionsTest extends TestCase
                 // promotion actions
                 [ new ItemsFixedDiscountAction(5000) ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(3),
+                new ItemsQuantityCondition(3, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 new ListAttributeFilter(new ListAttribute('categories', [1, 5]), ListAttributesComparator::IN),
                 // results
@@ -373,11 +373,29 @@ class PromotionsTest extends TestCase
                     ], 1)
                 ],
                 // promotion conditions
-                new MinimumItemsQuantityCondition(2),
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
                 // promotion filters
                 null,
                 // results
                 ['totalPrice' => 91000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                ],
+                // promotion actions
+                [
+                    new CheapestItemPercentDiscountAction(50, 0, new ItemsQuantityCondition(2)),
+                    new CheapestItemPercentDiscountAction(75, 0, new ItemsQuantityCondition(3)),
+                ],
+                // promotion conditions
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 25000],
             ],
         ];
     }

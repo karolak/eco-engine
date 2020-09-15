@@ -13,7 +13,7 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidActionException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueException;
 
 /**
- * Class CheapestItemPercentDiscountAction
+ * Class CheapestItemPercentDiscountActionHandler
  * @package Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler
  */
 class CheapestItemPercentDiscountActionHandler extends ItemsPercentDiscountActionHandler implements ActionHandlerInterface

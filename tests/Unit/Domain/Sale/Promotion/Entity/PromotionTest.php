@@ -4,7 +4,7 @@ namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Entity;
 use Karolak\EcoEngine\Domain\Common\ValueObject\TextAttribute;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\EmptyCondition;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\MinimumItemsQuantityCondition;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ItemsQuantityCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\EmptyFilter;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Filter\TextAttributeFilter;
@@ -73,14 +73,14 @@ class PromotionTest extends TestCase
     public function Should_SetCondition()
     {
         // Arrange
-        $condition = new MinimumItemsQuantityCondition(3);
+        $condition = new ItemsQuantityCondition(3);
 
         // Act
         $this->obj->setCondition($condition);
         $condition = $this->obj->getCondition();
 
         // Assert
-        $this->assertInstanceOf(MinimumItemsQuantityCondition::class, $condition);
+        $this->assertInstanceOf(ItemsQuantityCondition::class, $condition);
     }
 
     /**

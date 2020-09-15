@@ -1,15 +1,16 @@
 <?php
 namespace Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Condition;
 
+use Karolak\EcoEngine\Domain\Common\Comparator\NumericAttributesComparator;
 use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\MinimumItemsQuantityCondition;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ItemsQuantityCondition;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class MinimumItemsQuantityConditionTest
+ * Class ItemsQuantityConditionTest
  * @package Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\Condition
  */
-class MinimumItemsQuantityConditionTest extends TestCase
+class ItemsQuantityConditionTest extends TestCase
 {
     /**
      * @test
@@ -23,7 +24,7 @@ class MinimumItemsQuantityConditionTest extends TestCase
         $order->expects($this->any())
             ->method('getTotalProductsQuantity')
             ->willReturn($quantity);
-        $condition = new MinimumItemsQuantityCondition(3);
+        $condition = new ItemsQuantityCondition(3, NumericAttributesComparator::EQUALS_OR_HIGHER);
 
         // Act
         $result = $condition->isSatisfiedBy($order);
@@ -44,7 +45,7 @@ class MinimumItemsQuantityConditionTest extends TestCase
         $order->expects($this->any())
             ->method('getTotalProductsQuantity')
             ->willReturn($quantity);
-        $condition = new MinimumItemsQuantityCondition(3);
+        $condition = new ItemsQuantityCondition(3, NumericAttributesComparator::EQUALS_OR_HIGHER);
 
         // Act
         $result = $condition->isSatisfiedBy($order);
