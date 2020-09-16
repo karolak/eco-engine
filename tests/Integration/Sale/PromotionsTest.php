@@ -11,11 +11,13 @@ use Karolak\EcoEngine\Domain\Sale\Order\Service\PromotionApplicatorService;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedPriceAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemPercentDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsPercentDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\PromotionProductsAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemFixedDiscountActionHandler;
+use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemFixedPriceActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemPercentDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ItemsFixedDiscountActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ItemsPercentDiscountActionHandler;
@@ -61,6 +63,7 @@ class PromotionsTest extends TestCase
         $actionRegistry->set(ItemsFixedDiscountAction::class, new ItemsFixedDiscountActionHandler());
         $actionRegistry->set(CheapestItemPercentDiscountAction::class, new CheapestItemPercentDiscountActionHandler());
         $actionRegistry->set(CheapestItemFixedDiscountAction::class, new CheapestItemFixedDiscountActionHandler());
+        $actionRegistry->set(CheapestItemFixedPriceAction::class, new CheapestItemFixedPriceActionHandler());
         $actionRegistry->set(PromotionProductsAction::class, new PromotionProductsActionHandler());
 
         $this->promotionApplicator = new PromotionApplicatorService($actionRegistry);
@@ -396,6 +399,46 @@ class PromotionsTest extends TestCase
                 null,
                 // results
                 ['totalPrice' => 25000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                ],
+                // promotion actions
+                [
+                    new CheapestItemPercentDiscountAction(50, 0, new ItemsQuantityCondition(2)),
+                    new CheapestItemPercentDiscountAction(75, 0, new ItemsQuantityCondition(3)),
+                ],
+                // promotion conditions
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 52500],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                    new Product('4', 40000),
+                ],
+                // promotion actions
+                [
+                    new CheapestItemPercentDiscountAction(50, 0, new ItemsQuantityCondition(2)),
+                    new CheapestItemPercentDiscountAction(75, 0, new ItemsQuantityCondition(3)),
+                    new CheapestItemFixedPriceAction(1000, 0, new ItemsQuantityCondition(4)),
+                ],
+                // promotion conditions
+                new ItemsQuantityCondition(2, NumericAttributesComparator::EQUALS_OR_HIGHER),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 91000],
             ],
         ];
     }

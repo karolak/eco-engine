@@ -5,10 +5,10 @@ use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\ItemNotFoundException;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
-use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountAction;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedPriceAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ItemsFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\ActionHandlerInterface;
-use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemFixedDiscountActionHandler;
+use Karolak\EcoEngine\Domain\Sale\Promotion\ActionHandler\CheapestItemFixedPriceActionHandler;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidActionException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidGroupSizeException;
@@ -16,12 +16,12 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\InvalidPercentValueExcepti
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class CheapestItemFixedDiscountActionHandlerTest
+ * Class CheapestItemFixedPriceActionHandlerTest
  * @package Karolak\EcoEngine\Test\Unit\Domain\Sale\Promotion\ActionHandler
  */
-class CheapestItemFixedDiscountActionHandlerTest extends TestCase
+class CheapestItemFixedPriceActionHandlerTest extends TestCase
 {
-    /** @var CheapestItemFixedDiscountActionHandler */
+    /** @var CheapestItemFixedPriceActionHandler */
     private $obj;
 
     /**
@@ -30,7 +30,7 @@ class CheapestItemFixedDiscountActionHandlerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->obj = new CheapestItemFixedDiscountActionHandler();
+        $this->obj = new CheapestItemFixedPriceActionHandler();
     }
 
     /**
@@ -45,9 +45,9 @@ class CheapestItemFixedDiscountActionHandlerTest extends TestCase
     /**
      * @test
      * @throws InvalidActionException
-     * @throws InvalidPercentValueException
      * @throws InvalidPriceValueException
      * @throws ItemNotFoundException
+     * @throws InvalidPercentValueException
      */
     public function Should_ThrowException_When_HandleIncorrectAction()
     {
@@ -77,7 +77,7 @@ class CheapestItemFixedDiscountActionHandlerTest extends TestCase
         $order = new Order();
 
         $promotion = new Promotion('TEST', 'coupon');
-        $action = new CheapestItemFixedDiscountAction(50);
+        $action = new CheapestItemFixedPriceAction(50);
 
         // Act
         $order = $this->obj->handle($action, $promotion, $order);
@@ -109,13 +109,13 @@ class CheapestItemFixedDiscountActionHandlerTest extends TestCase
         $totalProductsPrice = $order->getTotalProductsPrice();
 
         $promotion = new Promotion('TEST', 'coupon');
-        $action = new CheapestItemFixedDiscountAction(50);
+        $action = new CheapestItemFixedPriceAction(100);
 
         // Act
         $order = $this->obj->handle($action, $promotion, $order);
 
         // Assert
-        $this->assertEquals(50, $totalProductsPrice - $order->getTotalProductsPrice());
+        $this->assertEquals(900, $totalProductsPrice - $order->getTotalProductsPrice());
     }
 
     /**
@@ -135,41 +135,13 @@ class CheapestItemFixedDiscountActionHandlerTest extends TestCase
         $totalProductsPrice = $order->getTotalProductsPrice();
 
         $promotion = new Promotion('TEST', 'coupon');
-        $action = new CheapestItemFixedDiscountAction(50);
+        $action = new CheapestItemFixedPriceAction(50);
 
         // Act
         $order = $this->obj->handle($action, $promotion, $order);
 
         // Assert
-        $this->assertEquals(50, $totalProductsPrice - $order->getTotalProductsPrice());
-    }
-
-    /**
-     * @test
-     * @throws InvalidActionException
-     * @throws InvalidPercentValueException
-     * @throws InvalidPriceValueException
-     * @throws ItemNotFoundException
-     * @throws InvalidGroupSizeException
-     */
-    public function Should_CorrectDiscountOrderItems_When_FixedDiscountOfCheapestItem()
-    {
-        // Arrange
-        $product1 = new Product('1', 2000);
-        $product2 = new Product('2', 4000);
-        $order = new Order();
-        $order->addProduct($product1);
-        $order->addProduct($product2);
-        $totalProductsPrice = $order->getTotalProductsPrice();
-
-        $promotion = new Promotion('TEST', 'coupon');
-        $action = new CheapestItemFixedDiscountAction(50);
-
-        // Act
-        $order = $this->obj->handle($action, $promotion, $order);
-
-        // Assert
-        $this->assertEquals(50, $totalProductsPrice - $order->getTotalProductsPrice());
+        $this->assertEquals(1950, $totalProductsPrice - $order->getTotalProductsPrice());
     }
 
     /**
@@ -195,13 +167,13 @@ class CheapestItemFixedDiscountActionHandlerTest extends TestCase
         $totalProductsPrice = $order->getTotalProductsPrice();
 
         $promotion = new Promotion('TEST', 'coupon');
-        $action = new CheapestItemFixedDiscountAction(100, 2);
+        $action = new CheapestItemFixedPriceAction(100, 2);
 
         // Act
         $order = $this->obj->handle($action, $promotion, $order);
 
         // Assert
-        $this->assertEquals(200, $totalProductsPrice - $order->getTotalProductsPrice());
+        $this->assertEquals(2800, $totalProductsPrice - $order->getTotalProductsPrice());
     }
 
     /**
@@ -227,12 +199,44 @@ class CheapestItemFixedDiscountActionHandlerTest extends TestCase
         $totalProductsPrice = $order->getTotalProductsPrice();
 
         $promotion = new Promotion('TEST', 'coupon');
-        $action = new CheapestItemFixedDiscountAction(100, 1);
+        $action = new CheapestItemFixedPriceAction(100, 1);
 
         // Act
         $order = $this->obj->handle($action, $promotion, $order);
 
         // Assert
-        $this->assertEquals(400, $totalProductsPrice - $order->getTotalProductsPrice());
+        $this->assertEquals(9600, $totalProductsPrice - $order->getTotalProductsPrice());
+    }
+
+    /**
+     * @test
+     * @throws InvalidActionException
+     * @throws InvalidPercentValueException
+     * @throws InvalidPriceValueException
+     * @throws ItemNotFoundException
+     * @throws InvalidGroupSizeException
+     */
+    public function Should_DoNothing_When_PromotionPriceIsHigherThanItemPrice()
+    {
+        // Arrange
+        $product1 = new Product('1', 2000);
+        $product2 = new Product('2', 4000);
+        $product3 = new Product('3', 1000);
+        $product4 = new Product('4', 3000);
+        $order = new Order();
+        $order->addProduct($product1);
+        $order->addProduct($product2);
+        $order->addProduct($product3);
+        $order->addProduct($product4);
+        $totalProductsPrice = $order->getTotalProductsPrice();
+
+        $promotion = new Promotion('TEST', 'coupon');
+        $action = new CheapestItemFixedPriceAction(100000);
+
+        // Act
+        $order = $this->obj->handle($action, $promotion, $order);
+
+        // Assert
+        $this->assertEquals(0, $totalProductsPrice - $order->getTotalProductsPrice());
     }
 }
