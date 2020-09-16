@@ -5,10 +5,13 @@ use Karolak\EcoEngine\Domain\Common\Comparator\ListAttributesComparator;
 use Karolak\EcoEngine\Domain\Common\Comparator\NumericAttributesComparator;
 use Karolak\EcoEngine\Domain\Common\ValueObject\ListAttribute;
 use Karolak\EcoEngine\Domain\Common\ValueObject\NumericAttribute;
+use Karolak\EcoEngine\Domain\Common\ValueObject\PickupPointAddress;
 use Karolak\EcoEngine\Domain\Sale\Order\Entity\Order;
 use Karolak\EcoEngine\Domain\Sale\Order\Exception\InvalidPriceValueException;
 use Karolak\EcoEngine\Domain\Sale\Order\Service\PromotionApplicatorService;
+use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Payment;
 use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Product;
+use Karolak\EcoEngine\Domain\Sale\Order\ValueObject\Shipment;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\ActionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedDiscountAction;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Action\CheapestItemFixedPriceAction;
@@ -27,6 +30,8 @@ use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ConditionInterface;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\EmptyCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ItemsQuantityCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\NumericAttributeCondition;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\PaymentCondition;
+use Karolak\EcoEngine\Domain\Sale\Promotion\Condition\ShipmentCondition;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Entity\Promotion;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\ActionHandlerAlreadyRegisteredException;
 use Karolak\EcoEngine\Domain\Sale\Promotion\Exception\ActionHandlerNotFoundException;
@@ -78,6 +83,7 @@ class PromotionsTest extends TestCase
      * @param array $results
      * @dataProvider provider
      * @throws ActionHandlerNotFoundException
+     * @throws InvalidPriceValueException
      */
     public function Should_ApplyPromotions(
         array $products = [],
@@ -89,6 +95,8 @@ class PromotionsTest extends TestCase
     {
         // Arrange
         $order = new Order();
+        $order->setPayment(new Payment('cod'));
+        $order->setShipment(new Shipment('point', 0, new PickupPointAddress('pp', 'test')));
         if (!empty($products)) {
             foreach ($products as $product) {
                 $order->addProduct($product);
@@ -439,6 +447,74 @@ class PromotionsTest extends TestCase
                 null,
                 // results
                 ['totalPrice' => 91000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                    new Product('4', 40000),
+                ],
+                // promotion actions
+                [ new ItemsFixedDiscountAction(5000) ],
+                // promotion conditions
+                new PaymentCondition('cod'),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 95000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                    new Product('4', 40000),
+                ],
+                // promotion actions
+                [ new ItemsFixedDiscountAction(5000) ],
+                // promotion conditions
+                new PaymentCondition('online'),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 100000, 'applyPromotion' => false],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                    new Product('4', 40000),
+                ],
+                // promotion actions
+                [ new ItemsFixedDiscountAction(5000) ],
+                // promotion conditions
+                new ShipmentCondition('point'),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 95000],
+            ],
+            [
+                // products
+                [
+                    new Product('1', 10000),
+                    new Product('2', 20000),
+                    new Product('3', 30000),
+                    new Product('4', 40000),
+                ],
+                // promotion actions
+                [ new ItemsFixedDiscountAction(5000) ],
+                // promotion conditions
+                new ShipmentCondition('courier'),
+                // promotion filters
+                null,
+                // results
+                ['totalPrice' => 100000, 'applyPromotion' => false],
             ],
         ];
     }

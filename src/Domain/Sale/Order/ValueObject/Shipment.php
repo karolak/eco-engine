@@ -23,11 +23,11 @@ class Shipment implements ValueObjectInterface
     /**
      * Shipment constructor.
      * @param string $code
-     * @param $price
+     * @param int $price
      * @param AddressInterface $address
      * @throws InvalidPriceValueException
      */
-    public function __construct($code, $price, AddressInterface $address)
+    public function __construct(string $code, int $price, AddressInterface $address)
     {
         if ($price < 0) {
             throw new InvalidPriceValueException();
